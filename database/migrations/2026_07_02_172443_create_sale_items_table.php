@@ -18,10 +18,9 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid')->unique();
 
-            // Foreign Keys linking to parent Sale, Product, and specific Batch
-            $table->foreignIdFor(Sale::class)->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(Product::class)->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(Batch::class)->constrained()->cascadeOnDelete();
+            // Foreign Keys linking to parent Sale and Batch
+            $table->foreignIdFor(Sale::class)->constrained()->restrictOnDelete();
+            $table->foreignIdFor(Batch::class)->constrained()->restrictOnDelete();
 
             // Quantity and pricing snapshots at the time of purchase
             $table->integer('quantity');

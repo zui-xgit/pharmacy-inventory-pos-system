@@ -83,7 +83,7 @@ class PosController extends Controller
                 });
         }
 
-        return Inertia::render('shop/main/pos', [
+        return Inertia::render('pos/pos', [
             'products' => $products, 
             'filters' => $request->only(['search']),
         ]); 
@@ -91,7 +91,6 @@ class PosController extends Controller
 
    
 
-    // checkOUT
     public function checkOut(Request $request, PosService $posService, Shop $shop): RedirectResponse
     { 
             $validated = $request->validate([
@@ -101,7 +100,10 @@ class PosController extends Controller
                     Rule::exists('batches', 'id')->where('shop_id', $shop->id),
                 ],
                 'items.*.quantity' => ['required', 'integer', 'min:1'],
+                'final_total' => ['required', 'numeric', 'min:0', 'max:99999999.99'],
             ]);  
+
+
 
             /** @var array<int, array{batch_id: int, quantity: int}> $items */
             $items = [];
@@ -142,25 +144,21 @@ class PosController extends Controller
                 $receiptNumber = $posService->generateReceiptNumber($shop);
 
 
-                // ── Step 3: Calculate total using database batch prices ───────────
-                $totalAmount = collect($items)->sum(function (array $item) use ($batches): int {
-                    $batch = $batches->get($item['batch_id']);
+                
+                
+                // ── Step 3: Create the sale record ───────────────────────────────
+                $totalAmount = $validated['final_total'];
 
-                    return (int) $batch->selling_price * $item['quantity'];
-                });
-
-
-                // ── Step 4: Create the sale record ───────────────────────────────
                 $sale = Sale::create([
                     'shop_id'        => $shop->id,
                     'sold_by'        => Auth::id(), // who made the sale
                     'receipt_number' => $receiptNumber,
-                    'total_amount'   => $totalAmount,
+                    'total_amount'   => $totalAmount, 
                     'status'         => 'completed',
                 ]);
 
 
-                // ── Step 5: Process each item directly against batch inventory ────
+                // ── Step 4: Process each item directly against batch inventory ────
                 foreach ($items as $item) {
                     $batch = $batches->get($item['batch_id']);
 
@@ -176,10 +174,9 @@ class PosController extends Controller
                         ? (int) floor($quantityAfter / $batch->units_per_package_received)
                         : $batch->packages_remaining;
 
-                    // 5a. Create sale item
+                    // 4a. Create sale item
                     SaleItem::create([
                         'sale_id'    => $sale->id,
-                        'product_id' => $batch->product_id,
                         'batch_id'   => $batch->id,
                         'quantity'   => $item['quantity'],
                         'unit_price' => $batch->selling_price,
@@ -187,13 +184,13 @@ class PosController extends Controller
                         'subtotal'   => $batch->selling_price * $item['quantity'],
                     ]);
 
-                    // 5b. Update live inventory directly on the batch table
+                    // 4b. Update live inventory directly on the batch table
                     $batch->update([
                         'units_remaining'    => $quantityAfter,
                         'packages_remaining' => $packagesRemaining,
                     ]);
 
-                    // 5c. Log movement in stock_movements ledger for auditing
+                    // 4c. Log movement in stock_movements ledger for auditing
                     StockMovement::create([
                         'batch_id'        => $batch->id,
                         'performed_by'         => Auth::id(),
@@ -212,76 +209,14 @@ class PosController extends Controller
             }catch(Throwable $e){
                 DB::rollBack();
                 return back()->withErrors([
-                    'error_message' => 'Failed to complete the sale. Please try again.',
+                    'message' => 'Failed to complete the sale. Please try again.',
                 ]);
             }
     }
 
 
-    // -------------------------------------------------------------------------
-    // Receipt number generator
-    // Format: RCP-YYYYMMDD-XXXX (sequence resets per day per shop)
-    // -------------------------------------------------------------------------
- 
-
-
-
-    // TODO: THIS FUNCTION IS NOT YET USED IN THE SYSTEM. FUTURE IMPLEMENTATION.  
-
-
-    /**
-     * Revert / Void a completed sale due to cashier error
-     */
-    public function voidSale(Request $request, Shop $shop, Sale $sale): RedirectResponse
-    {
-        if ($sale->status !== 'completed') {
-            return back()->withErrors(['error' => 'This sale has already been voided.']);
-        }
-
-        try {
-            DB::beginTransaction();
-
-            $sale->load('items.batch');
-
-            foreach ($sale->items as $item) {
-                $batch = $item->batch;
-
-                $batch->lockForUpdate();
-                $quantityBefore = $batch->units_remaining;
-                $quantityAfter  = $quantityBefore + $item->quantity;
-
-                $packagesRemaining = $batch->units_per_package_received > 0
-                    ? (int) floor($quantityAfter / $batch->units_per_package_received)
-                    : $batch->packages_remaining;
-
-                $batch->update([
-                    'units_remaining'    => $quantityAfter,
-                    'packages_remaining' => $packagesRemaining,
-                ]);
-
-                StockMovement::create([
-                    'batch_id'        => $batch->id,
-                    'user_id'         => Auth::id(),
-                    'type'            => StockMovementType::IN,
-                    'reason'          => StockMovementReason::RETURN,
-                    'quantity'        => $item->quantity, // positive = incoming back to stock
-                    'previous_stock'  => $quantityBefore,
-                    'new_stock'       => $quantityAfter,
-                    'notes'           => "Voided Sale — receipt {$sale->receipt_number}",
-                ]);
-            }
-
-            $sale->update(['status' => 'cancelled']);
-
-            DB::commit();
-
-            return back()->with('success', "Sale {$sale->receipt_number} successfully voided and stock restored.");
-
-        } catch (Exception $e) {
-            DB::rollBack();
-            return back()->withErrors(['error' => 'Failed to void the sale.']);
-        }
-    }
+    
+  
 
 
 }

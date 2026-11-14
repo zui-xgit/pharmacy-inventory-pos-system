@@ -37,28 +37,22 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
 
-        
+
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
             'auth' =>   [
                             'user' => $request->user() ? [
                             'uuid' => $request->user()->uuid, 
-                            'username' => $request->user()->username,
                             'firstname' => $request->user()->firstname,
                             'lastname' => $request->user()->lastname,
                             'email' => $request->user()->email,
                             'gender' => $request->user()->gender,
                             'phone' => $request->user()->phone,
-                            'roles' => $request->user()->getRoleNames(),
-                            'permissions' => $request->user()->getPermissionNames(), 
+                            'roles' => $request->user()->getRoleNames()->values(),
+                            'permissions' => $request->user()->getAllPermissions()->pluck('name')->values(),  
 
-                            // ⭐ Pass clean, simple flags directly to frontend
-                            'isAdmin' => $request->user()->hasRole('admin'),
-                            'isManager' => $request->user()->hasRole('manager'),
-                            'isCashier' => $request->user()->hasRole('cashier'),
-                            'isAdminOrManager' => $request->user()->hasAnyRole(['admin', 'manager']),
-                            'isManagerOrCashier' => $request->user()->hasAnyRole(['manager', 'cashier']),
                             'shops_count' => fn () => $request->user()->isAdmin()
                                                   ? Shop::count()
                                                   : 0, 

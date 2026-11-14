@@ -60,6 +60,7 @@ class CatalogController extends Controller
 
     }
 
+
     public function batchesCatalog(Request $request, Shop $shop): Response
     {
         $search_input = $request->input('search');
@@ -149,6 +150,23 @@ class CatalogController extends Controller
             'filters' => $request->only(['search']),
         ]);
     }
+
+    public function productInfo (Shop $shop, Product $product): Response 
+    {
+
+        return Inertia::render('shop/product-info'); 
+    }
+
+    public function batchInfo (Shop $shop, Batch $batch): Response
+    {    
+         return Inertia::render('shop/batch-info'); 
+    }
+
+    public function dosageFormInfo (Shop $shop, DosageForm $dosageForm): Response
+    {
+        return Inertia::render('shop/dosage-form-info'); 
+    }
+
 
     public function createDosageForm(Request $request, Shop $shop): RedirectResponse
     {

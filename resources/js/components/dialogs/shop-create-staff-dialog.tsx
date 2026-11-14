@@ -138,6 +138,20 @@ const ShopCreateStaffForm = ({
     const togglePermission = (permission: string) =>
         form.setData('permissions', toggle(form.data.permissions, permission));
 
+    const handleRoleChange = (role: string) =>
+        form.setData((current) => ({
+            ...current,
+            role,
+            // Managers get every permission preselected while cashiers start
+            // with none.
+            permissions:
+                role === 'manager'
+                    ? [...availablePermissions]
+                    : role === 'cashier'
+                      ? []
+                      : current.permissions,
+        }));
+
     const handleCreateStaff = (event: FormEvent) => {
         event.preventDefault();
 
@@ -237,7 +251,7 @@ const ShopCreateStaffForm = ({
 
                                 <Field
                                     id="email"
-                                    label="Email Address"
+                                    label="Email Address (Optional)"
                                     error={form.errors.email}
                                 >
                                     <Input
@@ -328,10 +342,7 @@ const ShopCreateStaffForm = ({
                                                         checked,
                                                     ) =>
                                                         checked === true &&
-                                                        form.setData(
-                                                            'role',
-                                                            role,
-                                                        )
+                                                        handleRoleChange(role)
                                                     }
                                                     className="cursor-pointer"
                                                 />

@@ -34,7 +34,6 @@ class UserFactory extends Factory
             'phone' => fake()->numerify('07########'),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('123456789'),
-            'remember_token' => Str::random(10),
         ];
     }
 

@@ -81,6 +81,7 @@ export default function OverviewDashboard({
             <Head title="Overview Dashboard" />
             <div className="flex items-center justify-between">
                 <Heading
+                    variant="small"
                     title={`${shop.name} - Overview`}
                     description="Today's performance at a glance"
                 />

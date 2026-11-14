@@ -35,7 +35,7 @@ export default function StaffSettingsLayout({ children }: PropsWithChildren) {
     ];
 
     return (
-        <div className="px-4 py-6">
+        <div className="flex flex-col gap-3 px-4 py-6">
             <Heading
                 title="Settings"
                 description="Manage your profile and account settings"

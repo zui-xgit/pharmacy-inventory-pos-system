@@ -32,7 +32,7 @@ const StaffCredentialsForm = ({
     const getInitials = useInitials();
 
     const credentialsForm = useForm({
-        username: member.username,
+        username: '',
         password: '',
         password_confirmation: '',
     });
@@ -73,8 +73,7 @@ const StaffCredentialsForm = ({
                             Update Credentials
                         </DialogTitle>
                         <DialogDescription className="truncate text-sm text-muted-foreground">
-                            {member.firstname + ' ' + member.lastname} ·{' '}
-                            {member.username}
+                            {member.firstname + ' ' + member.lastname}
                         </DialogDescription>
                     </div>
                 </div>
@@ -100,6 +99,7 @@ const StaffCredentialsForm = ({
                                     event.target.value,
                                 )
                             }
+                            placeholder="joe.doe"
                         />
                         <InputError message={credentialsForm.errors.username} />
                     </div>

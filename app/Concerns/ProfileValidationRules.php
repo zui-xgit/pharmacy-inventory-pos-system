@@ -18,7 +18,6 @@ trait ProfileValidationRules
         return [
             'firstname' => $this->nameRules(),
             'lastname' => $this->nameRules(),
-            'username' => $this->usernameRules($userId),
             'gender' => ['required', Rule::in(['male', 'female'])],
             'phone' => ['required', 'string', 'max:20'],
             'email' => $this->emailRules($userId),
@@ -61,9 +60,9 @@ trait ProfileValidationRules
     protected function emailRules(?int $userId = null): array
     {
         return [
-            'required',
+            'nullable',
             'string',
-            'email',
+            'email:rfc,dns',
             'max:255',
             $userId === null
                 ? Rule::unique(User::class)

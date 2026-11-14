@@ -1,29 +1,18 @@
-// export type User = {
-//     username: string;
-//     firstname: string;
-//     lastname: string;
-//     phone: string;
-//     gender: string;
-//     email: string;
-//     avatar?: string;
-//     email_verified_at: string | null;
-//     created_at: string;
-//     updated_at: string;
-//     [key: string]: unknown;
-// };
+export type Permission =
+    | 'inventory and stock management'
+    | 'reports and insights management'
+    | 'staff management';
+
+export type Role = 'admin' | 'manager' | 'cashier';
+
 export type User = {
     uuid: string;
-    username: string;
     firstname: string;
     lastname: string;
     email: string;
-    roles: string[];
+    roles: Role[];
+    permissions: Permission[];
     shop_uuid: string;
-    isAdmin: boolean;
-    isManager: boolean;
-    isCashier: boolean;
-    isAdminOrManager: boolean;
-    isManagerOrCashier: boolean;
     user_shops_count: number;
     shops_count: number;
 

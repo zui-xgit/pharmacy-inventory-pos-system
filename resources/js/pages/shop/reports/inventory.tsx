@@ -94,6 +94,7 @@ export default function InventoryReports({
         <DashboardInnerLayout>
             <Head title="Inventory Reports" />
             <Heading
+                variant="small"
                 title="Inventory Reports "
                 description="Monitor stock levels, expiry dates, and inventory value"
             />

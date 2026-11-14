@@ -141,6 +141,20 @@ const ShopStaffDetailsForm = ({
         new Set([...availablePermissions, ...member.permissions]),
     );
 
+    const handleRoleChange = (role: string) =>
+        userForm.setData((current) => ({
+            ...current,
+            role,
+            // Managers get every permission preselected while cashiers start
+            // with none.
+            permissions:
+                role === 'manager'
+                    ? [...permissionOptions]
+                    : role === 'cashier'
+                      ? []
+                      : current.permissions,
+        }));
+
     const handleUpdateStaff = () => {
         userForm.patch(
             ThisShop.staffUpdate({
@@ -242,7 +256,7 @@ const ShopStaffDetailsForm = ({
 
                             <Field
                                 id="email"
-                                label="Email Address"
+                                label="Email Address (Optional)"
                                 error={userForm.errors.email}
                             >
                                 <Input
@@ -310,10 +324,7 @@ const ShopStaffDetailsForm = ({
                                                 }
                                                 onCheckedChange={(checked) =>
                                                     checked === true &&
-                                                    userForm.setData(
-                                                        'role',
-                                                        role,
-                                                    )
+                                                    handleRoleChange(role)
                                                 }
                                                 className="cursor-pointer"
                                             />

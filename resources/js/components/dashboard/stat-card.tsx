@@ -17,7 +17,7 @@ export default function StatCard({
     valueClassName,
 }: StatCardProps) {
     return (
-        <Card className="py-3">
+        <Card className="gap-0 py-2">
             <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-sm font-medium">{title}</CardTitle>
                 {icon}
@@ -27,9 +27,7 @@ export default function StatCard({
                     {value}
                 </div>
                 {subtitle && (
-                    <p className="mt-1 text-xs text-muted-foreground">
-                        {subtitle}
-                    </p>
+                    <p className="text-xs text-muted-foreground">{subtitle}</p>
                 )}
             </CardContent>
         </Card>

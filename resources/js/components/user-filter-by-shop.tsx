@@ -1,4 +1,4 @@
-import { Check, ChevronsUpDown, Store } from 'lucide-react';
+import { Check, ChevronsUpDown, MapPin, Store } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -63,19 +63,21 @@ const ShopFilter = ({
                 <Command>
                     <CommandInput placeholder="Search shop..." />
                     <CommandList>
-                        <CommandEmpty>No shop found.</CommandEmpty>
+                        <CommandEmpty>No shop match found.</CommandEmpty>
                         <CommandGroup>
                             <CommandItem
                                 value="all shops"
                                 onSelect={() => select('')}
                             >
-                                <Check
-                                    className={cn(
-                                        'h-4 w-4',
-                                        value ? 'opacity-0' : 'opacity-100',
-                                    )}
-                                />
-                                All shops
+                                <div className="flex w-full items-center gap-3">
+                                    <Check
+                                        className={cn(
+                                            'h-4 w-4',
+                                            value ? 'opacity-0' : 'opacity-100',
+                                        )}
+                                    />
+                                    All shops
+                                </div>
                             </CommandItem>
 
                             {shops.map((shop) => (
@@ -84,15 +86,27 @@ const ShopFilter = ({
                                     value={shop.name}
                                     onSelect={() => select(shop.uuid)}
                                 >
-                                    <Check
-                                        className={cn(
-                                            'h-4 w-4',
-                                            value === shop.uuid
-                                                ? 'opacity-100'
-                                                : 'opacity-0',
-                                        )}
-                                    />
-                                    {shop.name}
+                                    <div className="flex w-full items-center gap-3">
+                                        <Check
+                                            className={cn(
+                                                'h-4 w-4',
+                                                value === shop.uuid
+                                                    ? 'opacity-100'
+                                                    : 'opacity-0',
+                                            )}
+                                        />
+                                        <div className="flex flex-col">
+                                            <span className="text-sm text-foreground">
+                                                {shop.name}
+                                            </span>
+                                            <div className="flex items-center gap-1">
+                                                <MapPin className="size-3 text-muted-foreground" />
+                                                <span className="text-xs text-muted-foreground">
+                                                    {shop.location}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </CommandItem>
                             ))}
                         </CommandGroup>

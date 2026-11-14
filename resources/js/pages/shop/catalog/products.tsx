@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import { EditDeleteRowActions } from '@/components/dopdown/edit-delete-row-actions';
 import Heading from '@/components/heading';
@@ -15,6 +15,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import type { DosageForm } from '@/types/type';
+import shop from '@/routes/shop';
 
 interface ProductItem {
     uuid: string;
@@ -36,6 +37,10 @@ interface Props {
 const Products = ({ products, filters, dosage_forms }: Props) => {
     const handleEdit = () => {};
     const handleDelete = () => {};
+
+    const { active_shop } = usePage<{
+        active_shop: { uuid: string };
+    }>().props;
 
     return (
         <>
@@ -76,13 +81,26 @@ const Products = ({ products, filters, dosage_forms }: Props) => {
                                 <TableHead>Name</TableHead>
                                 {/* <TableHead>SKU / Barcode</TableHead> */}
                                 <TableHead>Dosage Form</TableHead>
-                                <TableHead>Action</TableHead>
+                                <TableHead className="text-center">
+                                    View
+                                </TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {products.data.length > 0 ? (
                                 products.data.map((product) => (
-                                    <TableRow key={product.uuid}>
+                                    <TableRow
+                                        key={product.uuid}
+                                        className="cursor-pointer"
+                                        onClick={() =>
+                                            router.get(
+                                                shop.productInfo({
+                                                    shop: active_shop.uuid,
+                                                    product: product.uuid,
+                                                }),
+                                            )
+                                        }
+                                    >
                                         <TableCell className="font-medium text-foreground">
                                             {product.name}
                                         </TableCell>
@@ -95,11 +113,8 @@ const Products = ({ products, filters, dosage_forms }: Props) => {
                                             </Badge>
                                         </TableCell>
 
-                                        <TableCell>
-                                            <EditDeleteRowActions
-                                                onEdit={() => handleEdit()}
-                                                onDelete={() => handleDelete()}
-                                            />
+                                        <TableCell className="flex items-center justify-center">
+                                            <Plus />
                                         </TableCell>
                                     </TableRow>
                                 ))

@@ -227,16 +227,11 @@ export default function ShopStaff({
             <Head title="Shop Staff" />
             <DashboardInnerLayout>
                 <div className="flex flex-col gap-4 border-b border-border/40 pb-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="space-y-1">
-                        <Heading
-                            title="Shop Staff"
-                            description="Manage staff accounts, roles and access for this shop."
-                        />
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/40 px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">
-                            <Store className="h-3 w-3" />
-                            {shop.name}
-                        </span>
-                    </div>
+                    <Heading
+                        variant="small"
+                        title="Shop Staff"
+                        description="Manage staff accounts, roles and access for this shop."
+                    />
                     <ShopCreateStaffDialog
                         trigger={
                             <Button className="flex cursor-pointer items-center gap-2 rounded-xl bg-primary font-semibold text-primary-foreground hover:bg-primary/90">
@@ -415,7 +410,18 @@ export default function ShopStaff({
                                 </TableHeader>
                                 <TableBody>
                                     {staff.data.map((member) => (
-                                        <TableRow key={member.uuid}>
+                                        <TableRow
+                                            key={member.uuid}
+                                            className="cursor-pointer"
+                                            onClick={(e) => {
+                                                if (
+                                                    member.uuid !==
+                                                    auth.user.uuid
+                                                ) {
+                                                    setSelectedMember(member);
+                                                }
+                                            }}
+                                        >
                                             <TableCell className="py-3 pl-4">
                                                 <div className="flex items-center gap-3">
                                                     <Avatar className="h-9 w-9">
@@ -479,7 +485,12 @@ export default function ShopStaff({
                                                     {member.status}
                                                 </span>
                                             </TableCell>
-                                            <TableCell className="pr-4 text-right">
+                                            <TableCell
+                                                className="pr-4 text-right"
+                                                onClick={(e) =>
+                                                    e.stopPropagation()
+                                                }
+                                            >
                                                 {member.uuid !==
                                                 auth.user.uuid ? (
                                                     <DropdownMenu modal={false}>

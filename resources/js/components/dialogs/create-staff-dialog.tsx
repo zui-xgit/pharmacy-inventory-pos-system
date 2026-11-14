@@ -144,9 +144,15 @@ const CreateStaffForm = ({
         form.setData((current) => ({
             ...current,
             role,
-            // Admins already have every permission and shop, so drop any
-            // individual selections when the role changes to admin.
-            permissions: role === 'admin' ? [] : current.permissions,
+            // Managers get every permission preselected, cashiers start with
+            // none, and admins already have full access so individual
+            // selections are dropped for them.
+            permissions:
+                role === 'manager'
+                    ? [...availablePermissions]
+                    : role === 'admin' || role === 'cashier'
+                      ? []
+                      : current.permissions,
             shops: role === 'admin' ? [] : current.shops,
         }));
 
@@ -259,7 +265,7 @@ const CreateStaffForm = ({
 
                                 <Field
                                     id="email"
-                                    label="Email Address"
+                                    label="Email Address (Optional)"
                                     error={form.errors.email}
                                 >
                                     <Input

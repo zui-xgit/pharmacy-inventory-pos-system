@@ -14,6 +14,7 @@ import type { Auth, User } from '@/types';
 import staff from '@/routes/staff';
 import admin from '@/routes/admin';
 import { Badge } from './ui/badge';
+import { useCan } from '@/hooks/use-can';
 
 type Props = {
     user: User;
@@ -27,6 +28,8 @@ export function UserMenuContent({ user }: Props) {
         router.flushAll();
     };
 
+    const { hasRole, hasAnyRole } = useCan();
+
     const { auth } = usePage<{ auth: Auth }>().props;
 
     return (
@@ -37,7 +40,7 @@ export function UserMenuContent({ user }: Props) {
                 </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            {auth.user.isAdmin && (
+            {hasRole('admin') && (
                 <DropdownMenuItem asChild>
                     <Link
                         className="block w-full cursor-pointer"
@@ -55,7 +58,7 @@ export function UserMenuContent({ user }: Props) {
                     </Link>
                 </DropdownMenuItem>
             )}
-            {auth.user.isManagerOrCashier && (
+            {hasAnyRole(['manager', 'cashier']) && (
                 <DropdownMenuItem asChild>
                     <Link
                         className="block w-full cursor-pointer"

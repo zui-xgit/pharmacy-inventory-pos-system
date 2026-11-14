@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('lastname');
             $table->enum('gender', ['male', 'female']);
             $table->string('phone');
-            $table->string('email')->unique();
+            $table->string('email')->nullable()->unique();
             $table->enum('status', ['active', 'inactive', 'suspended'])->default('inactive');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');

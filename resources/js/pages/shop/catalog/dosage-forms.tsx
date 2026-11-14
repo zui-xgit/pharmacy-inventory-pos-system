@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 import { EditDeleteRowActions } from '@/components/dopdown/edit-delete-row-actions';
 import Heading from '@/components/heading';
@@ -14,6 +14,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import shop from '@/routes/shop';
 
 interface DosageFormItem {
     uuid: string;
@@ -34,6 +35,10 @@ interface Props {
 const DosageForms = ({ dosageForms, filters }: Props) => {
     const handleEdit = () => {};
     const handleDelete = () => {};
+
+    const { active_shop } = usePage<{
+        active_shop: { uuid: string };
+    }>().props;
 
     return (
         <>
@@ -80,7 +85,18 @@ const DosageForms = ({ dosageForms, filters }: Props) => {
                         <TableBody>
                             {dosageForms.data.length > 0 ? (
                                 dosageForms.data.map((form) => (
-                                    <TableRow key={form.uuid}>
+                                    <TableRow
+                                        key={form.uuid}
+                                        className="cursor-pointer"
+                                        onClick={() =>
+                                            router.get(
+                                                shop.dosageFormInfo({
+                                                    shop: active_shop.uuid,
+                                                    dosageForm: form.uuid,
+                                                }),
+                                            )
+                                        }
+                                    >
                                         <TableCell className="font-medium text-foreground">
                                             {form.name}
                                         </TableCell>
@@ -93,10 +109,7 @@ const DosageForms = ({ dosageForms, filters }: Props) => {
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
-                                            <EditDeleteRowActions
-                                                onEdit={() => handleEdit()}
-                                                onDelete={() => handleDelete()}
-                                            />
+                                            <Plus />
                                         </TableCell>
                                     </TableRow>
                                 ))

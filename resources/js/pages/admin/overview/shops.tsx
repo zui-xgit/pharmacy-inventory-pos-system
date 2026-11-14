@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { AlertTriangle, Store, TrendingUp, Users } from 'lucide-react';
 
 import ShopSummaryCard from '@/components/dashboard/shop-summary-card';
@@ -10,6 +10,7 @@ import SearchInput from '@/components/search-input';
 
 import DashboardInnerLayout from '@/layouts/app/dashboard-inner-layout';
 import admin from '@/routes/admin';
+import { Auth } from '@/types';
 
 interface ShopStats {
     total_sales_today: number;
@@ -63,6 +64,7 @@ export default function Shops({ shops, stats, filters }: ShopsProps) {
                 {/* Dashboard Header section inside AppLayout */}
                 <div className="flex flex-col gap-4 border-b border-border/40 pb-3 sm:flex-row sm:items-center sm:justify-between">
                     <Heading
+                        variant="small"
                         title="Pharmacy Branches"
                         description="Manage and select pharmacy locations under your organization."
                     />
@@ -89,7 +91,7 @@ export default function Shops({ shops, stats, filters }: ShopsProps) {
                         icon={
                             <TrendingUp className="h-4 w-4 text-emerald-600" />
                         }
-                        subtitle={`Across all shops · ${stats.totalTransactionsToday} transaction${stats.totalTransactionsToday === 1 ? '' : 's'} today`}
+                        subtitle={`All shops · ${stats.totalTransactionsToday} transaction${stats.totalTransactionsToday === 1 ? '' : 's'}`}
                         valueClassName="text-emerald-600"
                     />
                     <StatCard
@@ -98,7 +100,7 @@ export default function Shops({ shops, stats, filters }: ShopsProps) {
                         icon={
                             <Users className="h-4 w-4 text-muted-foreground" />
                         }
-                        subtitle="Active staff across all shops"
+                        subtitle="taff across all shops"
                     />
                     <StatCard
                         title="Total Alerts"

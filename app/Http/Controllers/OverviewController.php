@@ -69,17 +69,25 @@ class OverviewController extends Controller
                     'receipt_number' => $sale->receipt_number,
                     'total_amount' => (float) $sale->total_amount,
                     'created_at' => $sale->created_at->format('Y-m-d H:i'),
-                    'sold_by' => $sale->soldBy  ? trim(($sale->soldBy ->firstname ?? '').' '.($sale->soldBy ->lastname ?? '')) : null,
+                    'sold_by' => $sale->soldBy
+                        ? trim(($sale->soldBy->firstname ?? '').' '.($sale->soldBy->lastname ?? ''))
+                        : null,
                 ];
             });
 
+        // sale_items no longer has product_id, so go through batches to reach products
         $topProductsToday = DB::table('sale_items')
             ->join('sales', 'sale_items.sale_id', '=', 'sales.id')
-            ->join('products', 'sale_items.product_id', '=', 'products.id')
+            ->join('batches', 'sale_items.batch_id', '=', 'batches.id')
+            ->join('products', 'batches.product_id', '=', 'products.id')
             ->where('sales.shop_id', $shop->id)
             ->where('sales.status', 'completed')
             ->whereDate('sales.created_at', $today)
-            ->select('products.name', DB::raw('SUM(sale_items.quantity) as qty'), DB::raw('SUM(sale_items.subtotal) as revenue'))
+            ->select(
+                'products.name',
+                DB::raw('SUM(sale_items.quantity) as qty'),
+                DB::raw('SUM(sale_items.subtotal) as revenue'),
+            )
             ->groupBy('products.id', 'products.name')
             ->orderByDesc('qty')
             ->limit(5)

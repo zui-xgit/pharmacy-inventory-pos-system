@@ -38,6 +38,7 @@ import type { StaffMember, StaffShop } from '@/lib/staff';
 import { cn, formatDate } from '@/lib/utils';
 import admin from '@/routes/admin';
 import { Spinner } from '../ui/spinner';
+import { toast } from 'sonner';
 
 const toggle = (list: string[], value: string) =>
     list.includes(value)
@@ -140,22 +141,28 @@ const StaffDetailsForm = ({
     const toggleValue = (key: 'permissions' | 'shops', value: string) =>
         userForm.setData(key, toggle(userForm.data[key], value));
 
-    const handleRoleChange = (role: string) =>
-        userForm.setData((current) => ({
-            ...current,
-            role,
-            // Admins already have every permission and shop, so drop any
-            // individual selections when the role changes to admin.
-            permissions: role === 'admin' ? [] : current.permissions,
-            shops: role === 'admin' ? [] : current.shops,
-        }));
-
     const roleOptions =
         availableRoles.length > 0 ? availableRoles : member.roles;
 
     const permissionOptions = Array.from(
         new Set([...availablePermissions, ...member.permissions]),
     );
+
+    const handleRoleChange = (role: string) =>
+        userForm.setData((current) => ({
+            ...current,
+            role,
+            // Managers get every permission preselected, cashiers start with
+            // none, and admins already have full access so individual
+            // selections are dropped for them.
+            permissions:
+                role === 'manager'
+                    ? [...permissionOptions]
+                    : role === 'admin' || role === 'cashier'
+                      ? []
+                      : current.permissions,
+            shops: role === 'admin' ? [] : current.shops,
+        }));
 
     const selectedShops = availableShops.filter((shop) =>
         userForm.data.shops.includes(shop.uuid),
@@ -169,7 +176,11 @@ const StaffDetailsForm = ({
     const handleUpdateStaff = () => {
         userForm.patch(admin.staffUpdate({ user: member.uuid }).url, {
             preserveScroll: true,
-            onError: () => {},
+            onError: (errors) => {
+                if (errors.error) {
+                    toast.error(errors.error);
+                }
+            },
             onSuccess: () => {
                 onClose();
             },
@@ -264,7 +275,7 @@ const StaffDetailsForm = ({
 
                             <Field
                                 id="email"
-                                label="Email Address"
+                                label="Email Address (Optional)"
                                 error={userForm.errors.email}
                             >
                                 <Input
@@ -501,15 +512,6 @@ const StaffDetailsForm = ({
 
             {/* Update and delete actions are intentionally unwired for now. */}
             <DialogFooter className="gap-2 border-t border-border bg-card px-6 py-4">
-                <Button
-                    type="button"
-                    variant="outline"
-                    disabled={userForm.processing}
-                    className="cursor-pointer rounded-xl text-xs font-semibold text-destructive hover:bg-destructive/10 hover:text-destructive"
-                >
-                    <Trash2 className="h-3.5 w-3.5" />
-                    Delete Staff
-                </Button>
                 <Button
                     type="button"
                     onClick={handleUpdateStaff}

@@ -4,7 +4,7 @@ import {
     Eye,
     Globe,
     Key,
-    KeyRound,
+    MapPin,
     MoreHorizontal,
     Plus,
     ShieldCheck,
@@ -239,6 +239,7 @@ export default function StaffManagement({
             <DashboardInnerLayout>
                 <div className="flex flex-col gap-4 border-b border-border/40 pb-3 sm:flex-row sm:items-center sm:justify-between">
                     <Heading
+                        variant="small"
                         title="Staff Management"
                         description="Manage staff accounts, roles and access across your pharmacies."
                     />
@@ -280,7 +281,7 @@ export default function StaffManagement({
                         icon={
                             <UserMinus className="h-4 w-4 text-destructive" />
                         }
-                        subtitle="User account deactivated"
+                        subtitle="Requires activation"
                         valueClassName={
                             stats.inactive > 0 ? 'text-destructive' : ''
                         }
@@ -425,7 +426,18 @@ export default function StaffManagement({
                                 </TableHeader>
                                 <TableBody>
                                     {staff.data.map((member, index) => (
-                                        <TableRow key={index}>
+                                        <TableRow
+                                            key={index}
+                                            className="cursor-pointer"
+                                            onClick={() => {
+                                                if (
+                                                    member.uuid !==
+                                                    auth.user.uuid
+                                                ) {
+                                                    setSelectedMember(member);
+                                                }
+                                            }}
+                                        >
                                             <TableCell className="py-3 pl-4">
                                                 <div className="flex items-center gap-3">
                                                     <Avatar className="h-9 w-9">
@@ -445,7 +457,7 @@ export default function StaffManagement({
                                                             {'    '}
                                                         </p>
                                                         <p className="truncate text-xs text-muted-foreground">
-                                                            {member.email}
+                                                            {member?.email}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -474,7 +486,7 @@ export default function StaffManagement({
                                                     </span>
                                                 ) : (
                                                     <div className="space-y-1.5">
-                                                        <ul className="space-y-1.5">
+                                                        <ul className="space-y-1.5 border-l-2 pl-2">
                                                             {member.shops
                                                                 .slice(0, 3)
                                                                 .map(
@@ -491,11 +503,22 @@ export default function StaffManagement({
                                                                             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
                                                                                 <Store className="h-3.5 w-3.5" />
                                                                             </span>
-                                                                            <span className="text-xs font-medium text-foreground">
-                                                                                {
-                                                                                    shop.name
-                                                                                }
-                                                                            </span>
+
+                                                                            <div className="flex flex-col">
+                                                                                <span className="text-xs text-foreground">
+                                                                                    {
+                                                                                        shop.name
+                                                                                    }
+                                                                                </span>
+                                                                                <div className="flex items-center gap-1">
+                                                                                    <MapPin className="size-3 text-muted-foreground" />
+                                                                                    <span className="text-xs text-muted-foreground">
+                                                                                        {
+                                                                                            shop.location
+                                                                                        }
+                                                                                    </span>
+                                                                                </div>
+                                                                            </div>
                                                                         </li>
                                                                     ),
                                                                 )}
@@ -543,7 +566,12 @@ export default function StaffManagement({
                                                     {member.status}
                                                 </span>
                                             </TableCell>
-                                            <TableCell className="pr-4 text-right">
+                                            <TableCell
+                                                className="pr-4 text-right"
+                                                onClick={(e) =>
+                                                    e.stopPropagation()
+                                                }
+                                            >
                                                 {member.uuid !==
                                                 auth.user.uuid ? (
                                                     <DropdownMenu modal={false}>

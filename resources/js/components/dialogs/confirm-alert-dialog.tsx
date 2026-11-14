@@ -7,9 +7,11 @@ import {
     AlertDialogDescription,
     AlertDialogFooter,
     AlertDialogHeader,
+    AlertDialogMedia,
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { AlertCircle } from 'lucide-react';
 
 interface ConfirmAlertDialogProps {
     trigger: React.ReactNode;
@@ -45,7 +47,10 @@ export function ConfirmAlertDialog({
                 </AlertDialogHeader>
 
                 <AlertDialogFooter>
-                    <AlertDialogCancel onClick={onCancel}>
+                    <AlertDialogCancel
+                        className="bg-destructive text-white"
+                        onClick={onCancel}
+                    >
                         {cancelText}
                     </AlertDialogCancel>
                     <AlertDialogAction

@@ -9,9 +9,8 @@ export function AppSidebarHeader({
 }: {
     breadcrumbs?: BreadcrumbItemType[];
 }) {
-    // FIXED: Corrected the closed generic brackets `usePage<{...}>()`
     const { active_shop } = usePage<{
-        active_shop: { uuid: string; name: string } | undefined;
+        active_shop: { name: string };
     }>().props;
 
     return (
@@ -36,7 +35,7 @@ export function AppSidebarHeader({
                                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary"></span>
                             </span>
                             <Store className="h-3.5 w-3.5 text-muted-foreground" />
-                            <span className="max-w-[140px] truncate sm:max-w-[200px]">
+                            <span className="max-w-[140px] sm:max-w-[200px]">
                                 {active_shop.name}
                             </span>
                         </div>

@@ -21,33 +21,38 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
 
-        $admin_role = Role::create(['name' => 'admin']);
-        $manager_role = Role::create(['name' => 'manager']);
-        $cashier_role = Role::create(['name' => 'cashier']);
 
-        // permissions 
-        $permissions = [
-            'shop inventory and stock management',
-            'shop reports and insights management',
-            'shop staff management',
-            'shop profile management',
-            'shop security management',
-        ];
+        // Reset cached roles and permissions
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        foreach ($permissions as $name) {   
-            Permission::findOrCreate($name);
-        } 
-        
+        // create permissions
+        Permission::create(['name' => 'inventory and stock management']);
+        Permission::create(['name' => 'reports and insights management']);
+        Permission::create(['name' => 'staff management']);
+
+        // update cache to know about the newly created permissions (required if using WithoutModelEvents in seeders)
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+
+
+
+        $adminRole = Role::create(['name' => 'admin']);
+        Role::create(['name' => 'manager']);
+        Role::create(['name' => 'cashier']);
+
+        $adminRole->syncPermissions(Permission::all()); 
+      
 
         // User A (admin)
-        $admin_user = User::factory()->create([
+        $admin = User::factory()->create([
             'username' => 'admin.admin',
             'firstname' => 'jacob',
             'lastname' => 'athuman',
             'email' => 'benardbenny90@gmail.com',
             'status' => 'active'
         ]);
-        $admin_user->assignRole($admin_role);
+        $admin->assignRole($adminRole);
+        
 
        
         // SHOP 1

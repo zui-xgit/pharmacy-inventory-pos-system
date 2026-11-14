@@ -3,6 +3,8 @@ import {
     BarChart3,
     Calendar,
     DollarSign,
+    Plus,
+    PlusCircle,
     Receipt,
     ShoppingBag,
     TrendingUp,
@@ -138,7 +140,7 @@ export default function SalesReports({
         <DashboardInnerLayout>
             <Head title="Sales Reports" />
             <Heading
-                title="Sales Reports"
+                title="Sales Report"
                 description="Track sales performance, revenue, and profitability"
             />
 
@@ -234,6 +236,9 @@ export default function SalesReports({
                                         <TableHead className="text-right">
                                             Profit
                                         </TableHead>
+                                        <TableHead className="text-center">
+                                            View
+                                        </TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -248,7 +253,15 @@ export default function SalesReports({
                                         </TableRow>
                                     ) : (
                                         sales.data.map((sale) => (
-                                            <TableRow key={sale.uuid}>
+                                            <TableRow
+                                                key={sale.uuid}
+                                                className="cursor-pointer"
+                                                onClick={() =>
+                                                    console.log(
+                                                        sale.receipt_number,
+                                                    )
+                                                }
+                                            >
                                                 <TableCell className="font-mono text-sm">
                                                     {sale.receipt_number}
                                                 </TableCell>
@@ -271,6 +284,9 @@ export default function SalesReports({
                                                     {formatCurrency(
                                                         sale.profit,
                                                     )}
+                                                </TableCell>
+                                                <TableCell className="flex items-center justify-center">
+                                                    <Plus />
                                                 </TableCell>
                                             </TableRow>
                                         ))

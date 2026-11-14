@@ -87,8 +87,14 @@ const ShopSummaryCard = ({ shop }: { shop: Shop }) => {
     const clearCart = useCartStore((state) => state.clearCart);
 
     return (
-        <Card className="group flex flex-col justify-between transition-all duration-300 hover:border-primary/60 hover:shadow-lg">
-            <CardHeader className="pb-3">
+        <Card
+            onClick={() => {
+                clearCart();
+                router.get(ThisShop.overview({ shop: shop.uuid }));
+            }}
+            className="group cursor-pointer justify-between transition-all duration-300 hover:border-primary/60 hover:shadow-lg"
+        >
+            <CardHeader>
                 <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 space-y-1">
                         <CardTitle className="truncate text-base font-bold text-foreground transition-colors group-hover:text-primary">
@@ -122,7 +128,7 @@ const ShopSummaryCard = ({ shop }: { shop: Shop }) => {
                 </div>
             </CardHeader>
 
-            <CardContent className="space-y-3 pb-3">
+            <CardContent className="space-y-3">
                 <div className="grid grid-cols-2 gap-2">
                     <StatTile
                         icon={TrendingUp}
@@ -176,17 +182,23 @@ const ShopSummaryCard = ({ shop }: { shop: Shop }) => {
                 </div>
             </CardContent>
 
-            <CardFooter className="pt-2">
+            {/* <CardFooter className="pt-2">
                 <Button
                     onClick={() => {
-                        clearCart();
-                        router.get(ThisShop.overview({ shop: shop.uuid }));
+                        // clearCart();
+                        // router.get(ThisShop.overview({ shop: shop.uuid }));
                     }}
-                    className="w-full cursor-pointer items-center justify-between rounded-xl bg-primary font-semibold text-primary-foreground transition-all hover:bg-primary/90"
+                    className="w-full items-center justify-between rounded-xl bg-primary font-semibold text-primary-foreground transition-all hover:bg-primary/90"
                 >
                     <span>Manage Outlet</span>
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Button>
+            </CardFooter> */}
+            <CardFooter>
+                <div className="flex w-full items-center justify-between text-sm font-medium">
+                    <span className="text-primary">Open shop</span>
+                    <ArrowRight className="h-4 w-4 text-primary transition-transform group-hover:translate-x-1" />
+                </div>
             </CardFooter>
         </Card>
     );

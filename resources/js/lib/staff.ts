@@ -1,13 +1,13 @@
 export interface StaffShop {
     uuid: string;
     name: string;
+    location: string;
 }
 
 export interface StaffMember {
     uuid: string;
     firstname: string;
     lastname: string;
-    username: string;
     gender: 'male' | 'female';
     email: string;
     phone: string;

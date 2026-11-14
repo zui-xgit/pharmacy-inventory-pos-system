@@ -7,6 +7,8 @@ import AuthLayout from '@/layouts/auth-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import ShopCatalogLayout from './layouts/shop-catalog/layout';
 import StaffSettingsLayout from './layouts/settings/staff_layout';
+import ConnectionWatcher from './components/connection-watcher';
+import PosLayout from './layouts/app/pos-layout';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -26,6 +28,8 @@ createInertiaApp({
                 return [AppLayout, ShopCatalogLayout];
             case name.startsWith('shop/shop-selection/'):
                 return null;
+            case name.startsWith('pos/'):
+                return PosLayout;
             case name.startsWith('account-status/'):
                 return null;
             default:
@@ -36,6 +40,7 @@ createInertiaApp({
     withApp(app) {
         return (
             <TooltipProvider delayDuration={0}>
+                <ConnectionWatcher />
                 {app}
                 <Toaster position="top-right" richColors />
             </TooltipProvider>

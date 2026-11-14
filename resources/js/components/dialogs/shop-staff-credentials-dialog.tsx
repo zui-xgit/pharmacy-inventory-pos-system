@@ -34,7 +34,7 @@ const ShopStaffCredentialsForm = ({
     const getInitials = useInitials();
 
     const credentialsForm = useForm({
-        username: member.username,
+        username: '',
         password: '',
         password_confirmation: '',
     });
@@ -104,6 +104,7 @@ const ShopStaffCredentialsForm = ({
                                     event.target.value,
                                 )
                             }
+                            placeholder="joe.doe"
                         />
                         <InputError message={credentialsForm.errors.username} />
                     </div>

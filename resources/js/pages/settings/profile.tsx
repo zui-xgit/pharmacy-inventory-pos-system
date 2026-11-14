@@ -122,7 +122,9 @@ export default function Profile() {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
+                                <Label htmlFor="email">
+                                    Email address (Optional)
+                                </Label>
                                 <Input
                                     id="email"
                                     type="email"
@@ -130,29 +132,12 @@ export default function Profile() {
                                     defaultValue={auth.user.email}
                                     name="email"
                                     autoComplete="username"
-                                    placeholder="Email address"
+                                    placeholder="xxxx@xxx.com"
                                     disabled={processing}
                                 />
                                 <InputError
                                     className="mt-2"
                                     message={errors.email}
-                                />
-                            </div>
-                            <div className="grid gap-2">
-                                <Label htmlFor="username">Username</Label>
-                                <Input
-                                    id="username"
-                                    type="text"
-                                    className="mt-1 block w-full"
-                                    defaultValue={auth.user.username}
-                                    name="username"
-                                    autoComplete="username"
-                                    placeholder="Enter the username"
-                                    disabled={processing}
-                                />
-                                <InputError
-                                    className="mt-2"
-                                    message={errors.username}
                                 />
                             </div>
 

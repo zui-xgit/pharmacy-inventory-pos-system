@@ -37,6 +37,7 @@ import staff from '@/routes/staff';
 import { edit } from '@/routes/profile';
 import shop from '@/routes/shop';
 import { useCurrentUrl } from '@/hooks/use-current-url';
+import { useCan } from '@/hooks/use-can';
 
 // ADMIN NAVITEMS
 const Overview: NavItem[] = [
@@ -60,7 +61,7 @@ const Management: NavItem[] = [
 ];
 const Account: NavItem[] = [
     {
-        title: 'Settings',
+        title: 'Setting',
         href: edit(),
         icon: Settings,
     },
@@ -140,20 +141,22 @@ const ShopSystem = (shop_uuid: string): NavItem[] => [
 
 export function AppSidebar() {
     const { active_shop, auth } = usePage<{
-        active_shop: { uuid: string } | undefined;
+        active_shop: { uuid: string };
         auth: Auth;
     }>().props;
 
-    const shopHref = auth.user.isAdmin
+    const { can, hasRole, hasAnyRole } = useCan();
+
+    const shopHref = hasRole('admin')
         ? admin.shops()
-        : auth.user.isManagerOrCashier
+        : hasAnyRole(['manager', 'cashier'])
           ? staff.shopsSelect()
           : undefined;
 
     const { isCurrentUrl } = useCurrentUrl();
 
     return (
-        <Sidebar collapsible="icon" variant="inset">
+        <Sidebar collapsible="icon" variant="floating">
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
@@ -165,84 +168,90 @@ export function AppSidebar() {
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarHeader>
-            {/* ADMIN ALL SHOPS DASHBOARD */}
-            {auth.user.isAdmin && !active_shop && (
-                <SidebarContent>
-                    <NavMain groupLabel={'Overview'} items={Overview} />
-                    <NavMain groupLabel={'Management'} items={Management} />
-                    <NavMain groupLabel={'Account'} items={Account} />
-                </SidebarContent>
-            )}
 
-            {/* SHOP DASHBOARD */}
-            {active_shop && (
-                <SidebarContent>
-                    <NavMain
-                        groupLabel={'Main'}
-                        items={ShopOverview(active_shop.uuid)}
-                    />
-                    <NavMain
-                        groupLabel={'Inventory & Stock'}
-                        items={ShopInventoryAndStock(active_shop.uuid)}
-                    />
-                    <NavMain
-                        groupLabel={'Reports & Insights'}
-                        items={ShopReportAndInsights(active_shop.uuid)}
-                    />
+            <SidebarContent>
+                {/* ADMIN ALL SHOPS DASHBOARD */}
+                {hasRole('admin') && !active_shop && (
+                    <>
+                        <NavMain groupLabel={'Overview'} items={Overview} />
+                        <NavMain groupLabel={'Management'} items={Management} />
+                        <NavMain groupLabel={'Account'} items={Account} />
+                    </>
+                )}
 
-                    <SidebarGroup className="px-2 py-0">
-                        <SidebarGroupLabel>System</SidebarGroupLabel>
-                        <SidebarMenu>
-                            {auth.user.isAdminOrManager && (
+                {/* SHOP DASHBOARD */}
+                {active_shop && (
+                    <>
+                        <NavMain
+                            groupLabel={'Main'}
+                            items={ShopOverview(active_shop.uuid)}
+                        />
+                        {can('inventory and stock management') && (
+                            <NavMain
+                                groupLabel={'Inventory & Stock'}
+                                items={ShopInventoryAndStock(active_shop.uuid)}
+                            />
+                        )}
+                        {can('reports and insights management') && (
+                            <NavMain
+                                groupLabel={'Reports & Insights'}
+                                items={ShopReportAndInsights(active_shop.uuid)}
+                            />
+                        )}
+
+                        <SidebarGroup className="px-2 py-0">
+                            <SidebarGroupLabel>System</SidebarGroupLabel>
+                            <SidebarMenu>
+                                {can('staff management') && (
+                                    <SidebarMenuItem>
+                                        <SidebarMenuButton
+                                            asChild
+                                            isActive={isCurrentUrl(
+                                                shop.staffEdit({
+                                                    shop: active_shop.uuid,
+                                                }),
+                                            )}
+                                            tooltip={'Staff'}
+                                        >
+                                            <Link
+                                                href={shop.staffEdit({
+                                                    shop: active_shop.uuid,
+                                                })}
+                                                prefetch
+                                            >
+                                                <Users />
+                                                <span>Staff</span>
+                                            </Link>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                )}
                                 <SidebarMenuItem>
                                     <SidebarMenuButton
                                         asChild
                                         isActive={isCurrentUrl(
-                                            shop.staffEdit({
+                                            shop.staffProfile({
                                                 shop: active_shop.uuid,
                                             }),
                                         )}
-                                        tooltip={'Staff'}
+                                        tooltip={'Settings'}
                                     >
                                         <Link
-                                            href={shop.staffEdit({
+                                            href={shop.staffProfile({
                                                 shop: active_shop.uuid,
                                             })}
                                             prefetch
                                         >
-                                            <Users />
-                                            <span>Staff</span>
+                                            <Settings2 />
+                                            <span>Settings</span>
                                         </Link>
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>
-                            )}
-                            <SidebarMenuItem>
-                                <SidebarMenuButton
-                                    asChild
-                                    isActive={isCurrentUrl(
-                                        shop.staffProfile({
-                                            shop: active_shop.uuid,
-                                        }),
-                                    )}
-                                    tooltip={'Settings'}
-                                >
-                                    <Link
-                                        href={shop.staffProfile({
-                                            shop: active_shop.uuid,
-                                        })}
-                                        prefetch
-                                    >
-                                        <Settings2 />
-                                        <span>Settings</span>
-                                    </Link>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                        </SidebarMenu>
-                    </SidebarGroup>
+                            </SidebarMenu>
+                        </SidebarGroup>
+                    </>
+                )}
+            </SidebarContent>
 
-                    {/* .................... */}
-                </SidebarContent>
-            )}
             <SidebarFooter>
                 <NavUser />
             </SidebarFooter>

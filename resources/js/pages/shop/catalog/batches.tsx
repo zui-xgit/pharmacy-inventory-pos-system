@@ -55,24 +55,8 @@ interface Props {
 
 const Batches = ({ batches, filters }: Props) => {
     const { active_shop } = usePage<{
-        active_shop: { uuid: string } | undefined;
+        active_shop: { uuid: string };
     }>().props;
-
-    const handleEdit = (batchUuid: string) => {
-        if (active_shop) {
-            // Router endpoint ready:
-            // router.get(stock.editBatch(active_shop.uuid, batchUuid).url);
-            console.log('Edit batch:', batchUuid);
-        }
-    };
-
-    const handleDelete = (batchUuid: string) => {
-        if (confirm('Are you sure you want to delete this batch?')) {
-            // Router endpoint ready:
-            // router.delete(stock.deleteBatch(active_shop.uuid, batchUuid).url);
-            console.log('Delete batch:', batchUuid);
-        }
-    };
 
     return (
         <>
@@ -125,14 +109,25 @@ const Batches = ({ batches, filters }: Props) => {
                                     Status
                                 </TableHead>
                                 <TableHead className="text-right">
-                                    Actions
+                                    View
                                 </TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {batches.data.length > 0 ? (
                                 batches.data.map((batch) => (
-                                    <TableRow key={batch.uuid}>
+                                    <TableRow
+                                        key={batch.uuid}
+                                        className="cursor-pointer"
+                                        onClick={() =>
+                                            router.get(
+                                                shop.batchInfo({
+                                                    shop: active_shop.uuid,
+                                                    batch: batch.uuid,
+                                                }),
+                                            )
+                                        }
+                                    >
                                         <TableCell className="font-medium text-foreground">
                                             <span className="block font-mono text-xs text-muted-foreground">
                                                 #{batch.batch_number}
@@ -258,15 +253,8 @@ const Batches = ({ batches, filters }: Props) => {
                                                 )}
                                             </div>
                                         </TableCell>
-                                        <TableCell className="text-right">
-                                            <EditDeleteRowActions
-                                                onEdit={() =>
-                                                    handleEdit(batch.uuid)
-                                                }
-                                                onDelete={() =>
-                                                    handleDelete(batch.uuid)
-                                                }
-                                            />
+                                        <TableCell className="flex items-center justify-center">
+                                            <Plus />
                                         </TableCell>
                                     </TableRow>
                                 ))

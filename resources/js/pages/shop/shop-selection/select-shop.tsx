@@ -1,5 +1,12 @@
-import { Head, Link, usePage } from '@inertiajs/react';
-import { ArrowRight, LogOut, MapPin, Phone, Store } from 'lucide-react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import {
+    ArrowRight,
+    LocateIcon,
+    LogOut,
+    MapPin,
+    Phone,
+    Store,
+} from 'lucide-react';
 
 import Heading from '@/components/heading';
 import SearchInput from '@/components/search-input';
@@ -15,6 +22,13 @@ import {
     EmptyTitle,
 } from '@/components/ui/empty';
 import ThisShop from '@/routes/shop';
+import {
+    Card,
+    CardContent,
+    CardFooter,
+    CardHeader,
+} from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 
 interface Shop {
     uuid: string;
@@ -31,53 +45,59 @@ interface SelectShopProps {
     };
 }
 
-const ShopCard = ({ shop }: { shop: Shop }) => (
-    <Link
-        // href={current_shop.overview({ shop: shop.uuid })}
-        href={ThisShop.overview({ shop: shop.uuid })}
-        className="group rounded-2xl border bg-card p-5 shadow-xs transition-all hover:border-primary/40 hover:shadow-md"
-    >
-        <div className="flex items-start gap-3">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <Store className="h-5 w-5" />
-            </span>
-        </div>
+const ShopCard = ({ shop }: { shop: Shop }) => {
+    return (
+        <Card
+            onClick={() => router.get(ThisShop.overview({ shop: shop.uuid }))}
+            className="group cursor-pointer gap-3 py-3 shadow-xs transition-all hover:border-primary/40 hover:shadow-md"
+        >
+            <CardHeader className="flex-row items-start">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <Store className="h-4 w-4" />
+                </span>
+            </CardHeader>
 
-        <div className="mt-4 space-y-1">
-            <h3 className="text-base font-semibold text-foreground">
-                {shop.name}
-            </h3>
+            <CardContent className="flex flex-1 flex-col gap-2">
+                <div className="space-y-1">
+                    <h3 className="text-md truncate font-semibold text-foreground">
+                        {shop.name}
+                    </h3>
 
-            <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                <MapPin className="h-3.5 w-3.5 shrink-0" />
-                {shop.location}
-            </p>
-        </div>
+                    <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <MapPin className="h-3.5 w-3.5 shrink-0" />
+                        {shop.location}
+                    </p>
+                </div>
 
-        {(shop.address || shop.phone) && (
-            <dl className="mt-4 space-y-2 border-t border-border/60 pt-4 text-xs text-muted-foreground">
-                {shop.address && (
-                    <div className="flex items-start gap-2">
-                        <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 opacity-0" />
-                        <dd>{shop.address}</dd>
+                <Separator />
+
+                {(shop.address || shop.phone) && (
+                    <div className="space-y-2 text-xs text-muted-foreground">
+                        {shop.address && (
+                            <div className="flex items-start gap-2">
+                                <LocateIcon className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                                <dd>{shop.address}</dd>
+                            </div>
+                        )}
+                        {shop.phone && (
+                            <div className="flex items-center gap-2">
+                                <Phone className="h-3.5 w-3.5 shrink-0" />
+                                <dd>{shop.phone}</dd>
+                            </div>
+                        )}
                     </div>
                 )}
+            </CardContent>
 
-                {shop.phone && (
-                    <div className="flex items-center gap-2">
-                        <Phone className="h-3.5 w-3.5 shrink-0" />
-                        <dd>{shop.phone}</dd>
-                    </div>
-                )}
-            </dl>
-        )}
-
-        <div className="mt-5 flex items-center justify-between text-sm font-medium">
-            <span className="text-primary">Open shop</span>
-            <ArrowRight className="h-4 w-4 text-primary transition-transform group-hover:translate-x-1" />
-        </div>
-    </Link>
-);
+            <CardFooter>
+                <div className="flex w-full items-center justify-between text-sm font-medium">
+                    <span className="text-primary">Open shop</span>
+                    <ArrowRight className="h-4 w-4 text-primary transition-transform group-hover:translate-x-1" />
+                </div>
+            </CardFooter>
+        </Card>
+    );
+};
 
 export default function SelectShop({ shops, filters }: SelectShopProps) {
     const { auth } = usePage<{ auth: Auth }>().props;

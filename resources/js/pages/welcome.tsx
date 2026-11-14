@@ -15,6 +15,7 @@ import type { Auth } from '@/types';
 import type { RouteDefinition } from '@/wayfinder';
 import staff from '@/routes/staff';
 import AppLogoIcon from '@/components/app-logo-icon';
+import { useCan } from '@/hooks/use-can';
 
 export default function Welcome() {
     const { auth } = usePage<{
@@ -24,10 +25,12 @@ export default function Welcome() {
     let dashboardHref: RouteDefinition<'get'> =
         '#' as unknown as RouteDefinition<'get'>;
 
+    const { hasRole, hasAnyRole } = useCan();
+
     if (auth.user) {
-        if (auth.user.isAdmin) {
+        if (hasRole('admin')) {
             dashboardHref = admin.shops();
-        } else if (auth.user.isManagerOrCashier) {
+        } else if (hasAnyRole(['manager', 'cashier'])) {
             dashboardHref = staff.shopsSelect();
         }
     }

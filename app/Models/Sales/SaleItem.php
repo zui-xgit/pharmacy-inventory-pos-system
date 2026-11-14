@@ -16,7 +16,6 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property string $uuid
  * @property int $sale_id
- * @property int $product_id
  * @property int $batch_id
  * @property int $quantity
  * @property string $unit_price
@@ -68,16 +67,7 @@ class SaleItem extends Model
     {
         return $this->belongsTo(Sale::class);
     }
-
-    // Belongs to the specific product line item
-    /**
-     * @return BelongsTo<Product, $this>
-     */
-    public function product(): BelongsTo
-    {
-        return $this->belongsTo(Product::class);
-    }
-
+    
     // Belongs to the specific batch inventory row
     /**
      * @return BelongsTo<Batch, $this>

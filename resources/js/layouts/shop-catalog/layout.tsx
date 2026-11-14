@@ -6,6 +6,7 @@ import { useCurrentUrl } from '@/hooks/use-current-url';
 import { toUrl } from '@/lib/utils';
 import type { NavItem } from '@/types';
 import shop from '@/routes/shop';
+import Heading from '@/components/heading';
 
 const sidebarNavItems = (shop_uuid: string): NavItem[] => [
     {
@@ -40,14 +41,11 @@ export default function ShopCatalogLayout({ children }: PropsWithChildren) {
 
     return (
         <div className="flex flex-col space-y-4 px-4 py-4">
-            <header>
-                <h2 className="text-xl font-semibold tracking-tight">
-                    Catalog
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                    Manage your catalog items
-                </p>
-            </header>
+            <Heading
+                variant="small"
+                title="Catalog"
+                description="Manager your catalog items"
+            />
 
             <div className="flex flex-col space-y-6">
                 <div className="mb-10 sm:mb-5">

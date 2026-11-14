@@ -194,7 +194,7 @@ class AdminController extends Controller
         $shop = $request->string('shop')->toString(); // NEW: shop uuid from the URL
 
         $staff = User::query()
-            ->with(['roles:id,name', 'permissions:id,name', 'shops:id,uuid,name'])
+            ->with(['roles:id,name', 'permissions:id,name', 'shops:id,uuid,name,location'])
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($query) use ($search) {
                     $query->where('firstname', 'like', "%{$search}%")
@@ -222,7 +222,6 @@ class AdminController extends Controller
                 'uuid' => $user->uuid,
                 'firstname' => $user->firstname,
                 'lastname' => $user->lastname,
-                'username' => $user->username,
                 'gender' => $user->gender,
                 'email' => $user->email,
                 'phone' => $user->phone,
@@ -232,6 +231,7 @@ class AdminController extends Controller
                 'shops' => $user->shops->map(fn ($shop) => [
                     'uuid' => $shop->uuid,
                     'name' => $shop->name,
+                    'location' => $shop->location,
                 ])->values(),
                 'created_at' => $user->created_at?->toIso8601String(),
             ]);
@@ -250,7 +250,7 @@ class AdminController extends Controller
             'available_permissions' => Permission::pluck('name'),
             'available_shops' => Shop::query()
                 ->orderBy('name')
-                ->get(['uuid', 'name']),
+                ->get(['uuid', 'name', 'location']),
             'filters' => [
                 'search' => $search,
                 'role' => $role,
@@ -266,7 +266,7 @@ class AdminController extends Controller
         $validated = $request->validate([
             'firstname' => ['required', 'string', 'max:255'],
             'lastname' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', Rule::unique(User::class)->ignore($user->id)],
+            'email' => ['nullable', 'email:rfc,dns', 'max:255', Rule::unique(User::class)->ignore($user->id)],
             'gender' => ['required', Rule::in(['male', 'female'])],
             'phone' => ['required', 'string', 'max:30'],
             'role' => ['required', 'string', Rule::exists('roles', 'name')],
@@ -275,6 +275,7 @@ class AdminController extends Controller
             'shops' => ['present', 'array'],
             'shops.*' => ['uuid', Rule::exists('shops', 'uuid')],
         ]);
+
 
         DB::beginTransaction();
 
@@ -304,9 +305,9 @@ class AdminController extends Controller
 
         } catch (Throwable $e) {
             DB::rollBack();
-
+            
             return back()->withErrors([
-                'staff' => 'Could not update the staff member. Please try again.',
+                'error' => 'Could not update the staff member. Please try again.',
             ]);
         }
 
@@ -364,7 +365,7 @@ class AdminController extends Controller
                 'regex:/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/',
                 Rule::unique(User::class),
             ],
-            'email' => ['required', 'email', 'max:255', Rule::unique(User::class)],
+            'email' => [ 'nullable', 'email:rfc,dns', 'max:255', Rule::unique(User::class)],
             'phone' => ['required', 'string', 'max:30'],
             'gender' => ['required', Rule::in(['male', 'female'])],
             'password' => ['required', 'confirmed', Password::defaults()],
@@ -374,6 +375,7 @@ class AdminController extends Controller
             'shops' => ['present', 'array'],
             'shops.*' => ['uuid', Rule::exists('shops', 'uuid')],
         ]);
+
 
         DB::beginTransaction();
 
@@ -407,7 +409,6 @@ class AdminController extends Controller
             return back();
         } catch (Throwable $e) {
             DB::rollBack();
-
             return back()->withErrors([
                 'staff' => 'Could not create the staff member. Please try again.',
             ]);

@@ -170,6 +170,7 @@ export default function StockAdjustmentsPage({
             <Head title="Stock Adjustments" />
 
             <Heading
+                variant="small"
                 title="Stock Adjustments"
                 description="Correct batch quantities and update manufacturing or expiry dates directly in the live inventory ledger."
             />

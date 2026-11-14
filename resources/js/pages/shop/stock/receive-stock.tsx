@@ -109,29 +109,19 @@ const SectionLabel = ({
 const Field = ({
     id,
     label,
-    required,
-    hint,
     error,
-    className,
     children,
 }: {
     id?: string;
     label: string;
-    required?: boolean;
-    hint?: string;
     error?: string;
-    className?: string;
     children: ReactNode;
 }) => (
-    <div className={className ?? 'space-y-1.5'}>
+    <div className="flex flex-col gap-2">
         <Label htmlFor={id} className="text-xs font-semibold">
             {label}
-            {required && <span className="text-destructive"> *</span>}
         </Label>
         {children}
-        {hint && !error && (
-            <p className="text-[11px] text-muted-foreground">{hint}</p>
-        )}
         <InputError message={error} />
     </div>
 );
@@ -228,6 +218,7 @@ const ReceiveStock = ({
 
             <div className="space-y-6">
                 <Heading
+                    variant="small"
                     title="Receive Stock"
                     description="Record a new stock delivery from a supplier."
                 />
@@ -245,7 +236,6 @@ const ReceiveStock = ({
                         <CardContent className="space-y-5">
                             <Field
                                 label="Product Name"
-                                required
                                 error={
                                     (errors as Record<string, string>).product
                                 }
@@ -254,7 +244,6 @@ const ReceiveStock = ({
                                     products={products}
                                     selected={selectedProduct}
                                     onSelect={setSelectedProduct}
-                                    // searchUrl={stock.receive_stock({
                                     searchUrl={shop.receiveStock({
                                         shop: shop_uuid,
                                     })}
@@ -310,7 +299,7 @@ const ReceiveStock = ({
                             />
                         </CardHeader>
                         <CardContent className="space-y-6">
-                            <div className="space-y-4">
+                            <div className="space-y-2">
                                 <SectionLabel icon={Hash}>
                                     Batch & Quantity
                                 </SectionLabel>
@@ -319,9 +308,7 @@ const ReceiveStock = ({
                                     <Field
                                         id="batch_number"
                                         label="Batch Number"
-                                        required
                                         error={errors.batch_number}
-                                        className="space-y-1.5 sm:col-span-2"
                                     >
                                         <Input
                                             {...bind('batch_number')}
@@ -360,7 +347,7 @@ const ReceiveStock = ({
                                         />
                                     </Field>
 
-                                    <div className="flex items-center justify-between gap-3 rounded-xl border bg-muted/40 px-4 py-3 sm:col-span-2">
+                                    <div className="flex items-center justify-between gap-3 rounded-xl border bg-muted/40 px-4 py-2 sm:col-span-2">
                                         <div>
                                             <p className="text-xs font-semibold">
                                                 Quantity Received
@@ -381,16 +368,16 @@ const ReceiveStock = ({
 
                             <Separator />
 
-                            <div className="space-y-4">
+                            <div className="space-y-2">
                                 <SectionLabel icon={CalendarClock}>
                                     Dates
                                 </SectionLabel>
 
                                 <div className="grid gap-4 sm:grid-cols-2">
                                     <Field
-                                        label="Manufactured Date"
+                                        id="manufactured_date"
+                                        label="Manufactured date"
                                         error={errors.manufactured_date}
-                                        className="flex items-center gap-3"
                                     >
                                         <DatePicker
                                             value={data.manufactured_date}
@@ -404,9 +391,9 @@ const ReceiveStock = ({
                                     </Field>
 
                                     <Field
+                                        id="expiry_date"
                                         label="Expiry Date"
                                         error={errors.expiry_date}
-                                        className="flex items-center gap-3"
                                     >
                                         <DatePicker
                                             value={data.expiry_date}
@@ -420,7 +407,7 @@ const ReceiveStock = ({
 
                             <Separator />
 
-                            <div className="space-y-4">
+                            <div className="space-y-2">
                                 <SectionLabel icon={Banknote}>
                                     Pricing
                                 </SectionLabel>

@@ -14,6 +14,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import type { Auth } from '@/types';
+import { useCan } from '@/hooks/use-can';
 
 type PageProps = {
     auth: Auth;
@@ -21,6 +22,8 @@ type PageProps = {
 
 export default function Profile() {
     const { auth } = usePage<PageProps>().props;
+
+    const { hasAnyRole, hasRole } = useCan();
 
     return (
         <>
@@ -53,7 +56,7 @@ export default function Profile() {
                                     name="firstname"
                                     autoComplete="given-name"
                                     placeholder="First name"
-                                    disabled={processing}
+                                    disabled={processing || hasRole('cashier')}
                                 />
                                 <InputError
                                     className="mt-2"
@@ -70,7 +73,7 @@ export default function Profile() {
                                     name="lastname"
                                     autoComplete="family-name"
                                     placeholder="Last name"
-                                    disabled={processing}
+                                    disabled={processing || hasRole('cashier')}
                                 />
                                 <InputError
                                     className="mt-2"
@@ -83,7 +86,7 @@ export default function Profile() {
                                 <Select
                                     name="gender"
                                     defaultValue={auth.user.gender as string}
-                                    disabled={processing}
+                                    disabled={processing || hasRole('cashier')}
                                 >
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select gender" />
@@ -112,7 +115,7 @@ export default function Profile() {
                                     name="phone"
                                     autoComplete="tel"
                                     placeholder="0754 000 000"
-                                    disabled={processing}
+                                    disabled={processing || hasRole('cashier')}
                                 />
                                 <InputError
                                     className="mt-2"
@@ -121,7 +124,9 @@ export default function Profile() {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
+                                <Label htmlFor="email">
+                                    Email address (Optional)
+                                </Label>
                                 <Input
                                     id="email"
                                     type="email"
@@ -129,8 +134,8 @@ export default function Profile() {
                                     defaultValue={auth.user.email}
                                     name="email"
                                     autoComplete="username"
-                                    placeholder="Email address"
-                                    disabled={processing}
+                                    placeholder="xxx@xxx.com"
+                                    disabled={processing || hasRole('cashier')}
                                 />
                                 <InputError
                                     className="mt-2"
@@ -138,20 +143,22 @@ export default function Profile() {
                                 />
                             </div>
 
-                            <div className="flex items-center gap-4">
-                                <Button
-                                    disabled={processing}
-                                    data-test="update-profile-button"
-                                >
-                                    Save
-                                </Button>
-                            </div>
+                            {hasAnyRole(['admin', 'manager']) && (
+                                <div className="flex items-center gap-4">
+                                    <Button
+                                        disabled={processing}
+                                        data-test="update-profile-button"
+                                    >
+                                        Save
+                                    </Button>
+                                </div>
+                            )}
                         </>
                     )}
                 </Form>
             </div>
 
-            <DeleteUser />
+            {/* <DeleteUser /> */}
         </>
     );
 }
