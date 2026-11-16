@@ -14,6 +14,7 @@ import { formatDate } from '@/lib/utils';
 import shop from '@/routes/shop';
 import DashboardInnerLayout from '@/layouts/app/dashboard-inner-layout';
 import StatCard from '@/components/dashboard/stat-card';
+import BackButton from '@/components/back-button';
 
 interface Props {
     batch: {
@@ -53,14 +54,7 @@ const BatchInfo = ({ batch }: Props) => {
                 <div className="space-y-6">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                         <div className="space-y-2">
-                            <Button
-                                variant="ghost"
-                                className="cursor-pointer"
-                                onClick={() => window.history.back()}
-                            >
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back
-                            </Button>
+                            <BackButton />
                             <div className="flex items-center gap-3">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                                     <CalendarClock className="h-5 w-5" />
@@ -71,36 +65,6 @@ const BatchInfo = ({ batch }: Props) => {
                                         title={`Batch #${batch.batch_number}`}
                                         description="Received inventory details, pricing, and expiry status."
                                     />
-                                    <div className="mt-2 flex flex-wrap items-center gap-2">
-                                        {batch.is_out_of_stock ? (
-                                            <Badge variant="destructive">
-                                                Out of stock
-                                            </Badge>
-                                        ) : (
-                                            <Badge
-                                                variant="outline"
-                                                className="text-emerald-600 dark:text-emerald-400"
-                                            >
-                                                In stock
-                                            </Badge>
-                                        )}
-                                        {batch.is_expired ? (
-                                            <Badge variant="destructive">
-                                                Expired
-                                            </Badge>
-                                        ) : batch.is_expiring_soon ? (
-                                            <Badge
-                                                variant="outline"
-                                                className="border-amber-500 text-amber-600 dark:text-amber-400"
-                                            >
-                                                Expiring soon
-                                            </Badge>
-                                        ) : (
-                                            <Badge variant="secondary">
-                                                Valid
-                                            </Badge>
-                                        )}
-                                    </div>
                                 </div>
                             </div>
                         </div>

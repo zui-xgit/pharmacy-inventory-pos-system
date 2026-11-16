@@ -90,7 +90,7 @@ export default function PosPage({ products, filters }: PosPageProps) {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
                     <Button
-                        variant={'destructive'}
+                        variant={'secondary'}
                         className="cursor-pointer"
                         onClick={() => window.history.back()}
                     >

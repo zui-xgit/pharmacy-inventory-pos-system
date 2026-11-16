@@ -21,6 +21,7 @@ import {
 import shop from '@/routes/shop';
 import DashboardInnerLayout from '@/layouts/app/dashboard-inner-layout';
 import StatCard from '@/components/dashboard/stat-card';
+import BackButton from '@/components/back-button';
 
 interface Props {
     dosageForm: {
@@ -48,14 +49,7 @@ const DosageFormInfo = ({ dosageForm, products }: Props) => {
                 <div className="space-y-6">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                         <div className="space-y-2">
-                            <Button
-                                variant="ghost"
-                                className="cursor-pointer"
-                                onClick={() => window.history.back()}
-                            >
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back
-                            </Button>
+                            <BackButton />
                             <div className="flex items-center gap-3">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                                     <Pill className="h-5 w-5" />

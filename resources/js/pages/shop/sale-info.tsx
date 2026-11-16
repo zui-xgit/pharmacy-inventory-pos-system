@@ -111,34 +111,32 @@ const SaleInfo = ({ sale, items, shop: saleShop }: Props) => {
     return (
         <DashboardInnerLayout>
             <Head title={`Sale · ${sale.receipt_number}`} />
-            <div className="space-y-6">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                    <div className="space-y-2">
+            <div className="space-y-4">
+                <div className="flex flex-col gap-2">
+                    <div>
                         <BackButton />
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                                <Receipt className="h-5 w-5" />
-                            </div>
-                            <div>
-                                <Heading
-                                    variant="small"
-                                    title={sale.receipt_number}
-                                    description="Sale receipt details, items sold, and totals."
-                                />
-                                <div className="mt-2 flex flex-wrap items-center gap-2">
-                                    {statusBadge(sale.status)}
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
-                    <Button
-                        className="cursor-pointer"
-                        onClick={handlePrintReceipt}
-                    >
-                        <Printer className="mr-2 h-4 w-4" />
-                        Print receipt
-                    </Button>
+                    <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex min-w-0 items-center gap-3">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                <Receipt className="h-5 w-5" />
+                            </div>
+                            <Heading
+                                variant="small"
+                                title={sale.receipt_number}
+                                description="Sale receipt details, items sold, and totals."
+                            />
+                        </div>
+
+                        <Button
+                            className="w-full cursor-pointer sm:w-auto"
+                            onClick={handlePrintReceipt}
+                        >
+                            <Printer className="mr-2 h-4 w-4" />
+                            Print receipt
+                        </Button>
+                    </div>
                 </div>
 
                 <div className="grid gap-4 lg:grid-cols-3">

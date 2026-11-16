@@ -22,6 +22,7 @@ import { formatDate } from '@/lib/utils';
 import shop from '@/routes/shop';
 import StatCard from '@/components/dashboard/stat-card';
 import DashboardInnerLayout from '@/layouts/app/dashboard-inner-layout';
+import BackButton from '@/components/back-button';
 
 interface BatchItem {
     uuid: string;
@@ -71,14 +72,7 @@ const ProductInfo = ({ product, batches, stats }: Props) => {
                 <div className="space-y-6">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                         <div className="space-y-2">
-                            <Button
-                                variant={'secondary'}
-                                onClick={() => window.history.back()}
-                                className="cursor-pointer"
-                            >
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back
-                            </Button>
+                            <BackButton/>
                             <div className="flex items-center gap-3">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                                     <Package className="h-5 w-5" />
