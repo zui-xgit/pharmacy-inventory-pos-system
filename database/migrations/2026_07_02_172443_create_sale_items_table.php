@@ -22,6 +22,8 @@ return new class extends Migration
             $table->foreignIdFor(Sale::class)->constrained()->restrictOnDelete();
             $table->foreignIdFor(Batch::class)->constrained()->restrictOnDelete();
 
+            $table->foreignIdFor(Product::class)->constrained()->restrictOnDelete(); 
+
             // Quantity and pricing snapshots at the time of purchase
             $table->integer('quantity');
             $table->decimal('unit_price', 12, 2);

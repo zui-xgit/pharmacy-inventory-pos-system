@@ -1,4 +1,4 @@
-﻿import { Head, Link, router } from '@inertiajs/react';
+﻿import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
     BarChart3,
     Calendar,
@@ -97,6 +97,8 @@ export default function SalesReports({
     const [period, setPeriod] = useState(filters.period || 'today');
     const [from, setFrom] = useState(filters.from || '');
     const [to, setTo] = useState(filters.to || '');
+
+    const { active_shop } = usePage<{ active_shop: { uuid: string } }>().props;
 
     const applyFilters = (
         newPeriod: string,
@@ -257,8 +259,11 @@ export default function SalesReports({
                                                 key={sale.uuid}
                                                 className="cursor-pointer"
                                                 onClick={() =>
-                                                    console.log(
-                                                        sale.receipt_number,
+                                                    router.get(
+                                                        shop.saleInfo({
+                                                            shop: active_shop.uuid,
+                                                            sale: sale.uuid,
+                                                        }),
                                                     )
                                                 }
                                             >

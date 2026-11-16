@@ -66,6 +66,7 @@ class OverviewController extends Controller
             ->get()
             ->map(function (Sale $sale) {
                 return [
+                    'uuid' => $sale->uuid, 
                     'receipt_number' => $sale->receipt_number,
                     'total_amount' => (float) $sale->total_amount,
                     'created_at' => $sale->created_at->format('Y-m-d H:i'),

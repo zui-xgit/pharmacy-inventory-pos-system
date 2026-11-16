@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 interface StatCardProps {
     title: string;
     value: string;
-    icon: ReactNode;
+    icon?: ReactNode;
     subtitle?: string; // Optional prop
     valueClassName?: string;
 }

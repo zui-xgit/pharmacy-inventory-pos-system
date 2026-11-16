@@ -44,7 +44,7 @@ class SaleItem extends Model
         return ['uuid'];
     }
 
-     /**
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -67,7 +67,7 @@ class SaleItem extends Model
     {
         return $this->belongsTo(Sale::class);
     }
-    
+
     // Belongs to the specific batch inventory row
     /**
      * @return BelongsTo<Batch, $this>
@@ -75,5 +75,10 @@ class SaleItem extends Model
     public function batch(): BelongsTo
     {
         return $this->belongsTo(Batch::class);
+    }
+
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class);
     }
 }

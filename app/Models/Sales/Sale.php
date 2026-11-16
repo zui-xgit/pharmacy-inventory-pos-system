@@ -96,8 +96,6 @@ class Sale extends Model
         return $this->hasMany(SaleItem::class);
     }
 
-   
-
     // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
@@ -108,7 +106,7 @@ class Sale extends Model
      */
     public function profit(): float
     {
-        $items = $this->relationLoaded('items') ? $this->items : $this->saleItems;
+        $items = $this->relationLoaded('items') ? $this->items : $this->items()->get();
 
         return $items->sum(function (SaleItem $item): float {
             return ((float) $item->unit_price - (float) $item->cost_price) * $item->quantity;

@@ -45,6 +45,8 @@ Route::prefix('shop/{shop:uuid}')->middleware(['auth', 'verified', 'check.status
     // REPORTS && INSIGHTS
     Route::middleware('permission:reports and insights management')->group(function (){
         Route::get('/reports/sales', [ReportsAndInsightsController::class, 'salesReports'])->name('shop.sales-report');
+        Route::get('/reports/sales/sale-info/{sale:uuid}', [ReportsAndInsightsController::class, 'saleInfo'])->name('shop.sale-info'); 
+
         Route::get('/reports/inventory', [ReportsAndInsightsController::class, 'inventoryReports'])->name('shop.inventory-report');
     }); 
 

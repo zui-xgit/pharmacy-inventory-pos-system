@@ -42,7 +42,7 @@ createInertiaApp({
             <TooltipProvider delayDuration={0}>
                 <ConnectionWatcher />
                 {app}
-                <Toaster position="top-right" richColors />
+                <Toaster position="top-center" richColors />
             </TooltipProvider>
         );
     },

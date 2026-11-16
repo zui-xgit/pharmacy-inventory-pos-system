@@ -15,6 +15,58 @@ use Inertia\Response;
 
 class ReportsAndInsightsController extends Controller
 {
+    public function saleInfo(Shop $shop, Sale $sale): Response
+    {
+        abort_unless($sale->shop_id === $shop->id, 404);
+
+        $sale->load([
+            'soldBy:id,uuid,firstname,lastname',
+            'items' => fn ($query) => $query->orderBy('id'),
+            'items.product:id,uuid,name,dosage_form_id',
+            'items.product.dosageForm:id,name',
+            'items.batch:id,uuid,batch_number',
+        ]);
+
+        $items = $sale->items->map(function (SaleItem $item): array {
+            return [
+                'uuid' => $item->uuid,
+                'product' => [
+                    'uuid' => $item->product?->uuid,
+                    'name' => $item->product?->name ?? 'Deleted product',
+                    'dosage_form' => $item->product?->dosageForm?->name,
+                ],
+                'batch_number' => $item->batch?->batch_number,
+                'quantity' => $item->quantity,
+                'unit_price' => (float) $item->unit_price,
+                'subtotal' => (float) $item->subtotal,
+            ];
+        })->values();
+
+        return Inertia::render('shop/sale-info', [
+            'sale' => [
+                'uuid' => $sale->uuid,
+                'receipt_number' => $sale->receipt_number,
+                'total_amount' => (float) $sale->total_amount,
+                'status' => $sale->status,
+                'created_at' => $sale->created_at?->format('Y-m-d H:i:s'),
+                'sold_by' => $sale->soldBy
+                    ? trim(($sale->soldBy->firstname ?? '').' '.($sale->soldBy->lastname ?? ''))
+                    : null,
+                'units_sold' => $items->sum('quantity'),
+                'products_count' => $items->count(),
+            ],
+            'items' => $items,
+            'shop' => [
+                'uuid' => $shop->uuid,
+                'name' => $shop->name,
+                'location' => $shop->location,
+                'address' => $shop->address,
+                'phone' => $shop->phone,
+                'currency_symbol' => $shop->currency_symbol,
+            ],
+        ]);
+    }
+
     public function salesReports(Request $request, Shop $shop): Response
     {
         $period = $request->input('period', 'today');
@@ -54,7 +106,7 @@ class ReportsAndInsightsController extends Controller
                     'total_amount' => (float) $sale->total_amount,
                     'status' => $sale->status,
                     'created_at' => $sale->created_at->format('Y-m-d H:i:s'),
-                    'sold_by' => $sale->soldBy  ? trim(($sale->soldBy ->firstname ?? '').' '.($sale->soldBy ->lastname ?? '')) : null,
+                    'sold_by' => $sale->soldBy ? trim(($sale->soldBy->firstname ?? '').' '.($sale->soldBy->lastname ?? '')) : null,
                     'items_count' => $sale->items->count(),
                     'profit' => $sale->profit(),
                 ];
@@ -67,26 +119,38 @@ class ReportsAndInsightsController extends Controller
             $totalProfit += $sale->profit();
         }
 
-        $topProducts = SaleItem::whereHas('sale', function ($q) use ($shop, $query) {
-            $q->where('shop_id', $shop->id)->where('status', 'completed');
-            if ($query->getQuery()->wheres) {
-                // simpler: recompute
-            }
-        })
+        $topProducts = SaleItem::query()
             ->join('sales', 'sale_items.sale_id', '=', 'sales.id')
+            ->join('batches', 'sale_items.batch_id', '=', 'batches.id')
             ->where('sales.shop_id', $shop->id)
             ->where('sales.status', 'completed')
-            ->when($period === 'today', fn($q) => $q->whereDate('sales.created_at', Carbon::today()))
-            ->when($period === 'yesterday', fn($q) => $q->whereDate('sales.created_at', Carbon::yesterday()))
-            ->when($period === 'week', fn($q) => $q->whereBetween('sales.created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]))
-            ->when($period === 'month', fn($q) => $q->whereMonth('sales.created_at', Carbon::now()->month)->whereYear('sales.created_at', Carbon::now()->year))
-            ->when($period === 'custom' && $from && $to, fn($q) => $q->whereBetween('sales.created_at', [Carbon::parse($from)->startOfDay(), Carbon::parse($to)->endOfDay()]))
-            ->select('sale_items.product_id', DB::raw('SUM(sale_items.quantity) as total_qty'), DB::raw('SUM(sale_items.subtotal) as total_revenue'), DB::raw('SUM((sale_items.unit_price - sale_items.cost_price) * sale_items.quantity) as total_profit'))
-            ->groupBy('sale_items.product_id')
+            ->when($period === 'today', fn ($q) => $q->whereDate('sales.created_at', Carbon::today()))
+            ->when($period === 'yesterday', fn ($q) => $q->whereDate('sales.created_at', Carbon::yesterday()))
+            ->when($period === 'week', fn ($q) => $q->whereBetween('sales.created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]))
+            ->when($period === 'month', fn ($q) => $q->whereMonth('sales.created_at', Carbon::now()->month)->whereYear('sales.created_at', Carbon::now()->year))
+            ->when($period === 'custom' && $from && $to, fn ($q) => $q->whereBetween('sales.created_at', [Carbon::parse($from)->startOfDay(), Carbon::parse($to)->endOfDay()]))
+            ->select(
+                'batches.product_id',
+                DB::raw('SUM(sale_items.quantity) as total_qty'),
+                DB::raw('SUM(sale_items.subtotal) as total_revenue'),
+                DB::raw('SUM((sale_items.unit_price - sale_items.cost_price) * sale_items.quantity) as total_profit')
+            )
+            ->groupBy('batches.product_id')
             ->orderByDesc('total_qty')
             ->limit(10)
-            ->with('product:id,name')
-            ->get();
+            ->get()
+            ->map(function ($row) {
+                $product = Product::query()->select('id', 'name')->find($row->product_id);
+
+                return [
+                    'product_id' => $row->product_id,
+                    'total_qty' => (int) $row->total_qty,
+                    'total_revenue' => (float) $row->total_revenue,
+                    'total_profit' => (float) $row->total_profit,
+                    'product' => $product ? ['id' => $product->id, 'name' => $product->name] : null,
+                ];
+            })
+            ->values();
 
         return Inertia::render('shop/reports/sales', [
             'sales' => $sales,
@@ -163,11 +227,13 @@ class ReportsAndInsightsController extends Controller
             ->filter(function ($product) {
                 $total = $product->batches->sum('units_remaining');
                 $threshold = $product->reorder_point ?? 10;
+
                 return $total > 0 && $total <= $threshold;
             })
             ->take(10)
             ->map(function ($product) {
                 $total = $product->batches->sum('units_remaining');
+
                 return [
                     'name' => $product->name,
                     'total_units' => $total,

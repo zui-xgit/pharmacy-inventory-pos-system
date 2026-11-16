@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
     AlertTriangle,
     Clock,
@@ -40,6 +40,7 @@ interface Stats {
 }
 
 interface RecentSale {
+    uuid: string;
     receipt_number: string;
     total_amount: number;
     created_at: string;
@@ -75,6 +76,10 @@ export default function OverviewDashboard({
             minimumFractionDigits: 0,
         }).format(amount);
     };
+
+    const { active_shop } = usePage<{
+        active_shop: { uuid: string };
+    }>().props;
 
     return (
         <DashboardInnerLayout>
@@ -182,7 +187,18 @@ export default function OverviewDashboard({
                                         </TableRow>
                                     ) : (
                                         recentSales.map((sale, index) => (
-                                            <TableRow key={index}>
+                                            <TableRow
+                                                key={index}
+                                                className="cursor-pointer"
+                                                onClick={() =>
+                                                    router.get(
+                                                        ThisShop.saleInfo({
+                                                            shop: active_shop.uuid,
+                                                            sale: sale.uuid,
+                                                        }),
+                                                    )
+                                                }
+                                            >
                                                 <TableCell className="font-mono text-sm">
                                                     {sale.receipt_number}
                                                 </TableCell>

@@ -405,11 +405,9 @@ function OrderPanel() {
                 onSuccess: ({ flash }) => {
                     clearCart();
 
-                    if (flash.message) {
-                        toast.success(flash.message as string, {
-                            richColors: true,
-                            position: 'top-center',
-                        });
+                    //TODO: FLASH RECEIPTS
+                    if (flash.receipt) {
+                        console.log(flash.receipt);
                     }
                 },
                 onError: (errors) => {
