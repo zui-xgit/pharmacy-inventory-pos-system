@@ -60,7 +60,6 @@ class CatalogController extends Controller
 
     }
 
-
     public function batchesCatalog(Request $request, Shop $shop): Response
     {
         $search_input = $request->input('search');
@@ -151,22 +150,119 @@ class CatalogController extends Controller
         ]);
     }
 
-    public function productInfo (Shop $shop, Product $product): Response 
+    public function productInfo(Shop $shop, Product $product): Response
     {
+        abort_unless($product->shop_id === $shop->id, 404);
 
-        return Inertia::render('shop/product-info'); 
+        $product->load([
+            'dosageForm:id,uuid,name',
+            'batches' => fn ($query) => $query->latest(),
+        ]);
+
+        $batches = $product->batches->map(function (Batch $batch) use ($shop): array {
+            $totalUnitsReceived = $batch->packages_received * $batch->units_per_package_received;
+
+            return [
+                'uuid' => $batch->uuid,
+                'batch_number' => $batch->batch_number,
+                'packages_received' => $batch->packages_received,
+                'units_per_package_received' => $batch->units_per_package_received,
+                'total_units_received' => $totalUnitsReceived,
+                'packages_remaining' => $batch->packages_remaining,
+                'units_remaining' => $batch->units_remaining,
+                'is_out_of_stock' => $batch->isOutOfStock(),
+                'cost_price' => $batch->cost_price,
+                'selling_price' => $batch->selling_price,
+                'manufactured_date' => $batch->manufactured_date?->format('Y-m-d'),
+                'expiry_date' => $batch->expiry_date?->format('Y-m-d'),
+                'is_expired' => $batch->isExpired(),
+                'is_expiring_soon' => $batch->isExpiringSoon($shop->expiry_alert_days ?? 30),
+                'days_until_expiry' => $batch->daysUntilExpiry(),
+            ];
+        })->values();
+
+        return Inertia::render('shop/product-info', [
+            'product' => [
+                'uuid' => $product->uuid,
+                'name' => $product->name,
+                'reorder_point' => $product->reorder_point,
+                'description' => $product->description,
+                'is_active' => $product->is_active,
+                'created_at' => $product->created_at?->format('Y-m-d'),
+                'dosage_form' => [
+                    'uuid' => $product->dosageForm->uuid,
+                    'name' => $product->dosageForm->name,
+                ],
+            ],
+            'batches' => $batches,
+            'stats' => [
+                'batches_count' => $batches->count(),
+                'total_units_remaining' => (int) $batches->sum('units_remaining'),
+                'in_stock_batches' => (int) $batches->where('is_out_of_stock', false)->count(),
+                'expired_batches' => (int) $batches->where('is_expired', true)->count(),
+            ],
+        ]);
     }
 
-    public function batchInfo (Shop $shop, Batch $batch): Response
-    {    
-         return Inertia::render('shop/batch-info'); 
-    }
-
-    public function dosageFormInfo (Shop $shop, DosageForm $dosageForm): Response
+    public function batchInfo(Shop $shop, Batch $batch): Response
     {
-        return Inertia::render('shop/dosage-form-info'); 
+        abort_unless($batch->shop_id === $shop->id, 404);
+
+        $batch->load(['product:id,uuid,name,dosage_form_id,shop_id', 'product.dosageForm:id,uuid,name']);
+
+        $totalUnitsReceived = $batch->packages_received * $batch->units_per_package_received;
+
+        return Inertia::render('shop/batch-info', [
+            'batch' => [
+                'uuid' => $batch->uuid,
+                'batch_number' => $batch->batch_number,
+                'packages_received' => $batch->packages_received,
+                'units_per_package_received' => $batch->units_per_package_received,
+                'total_units_received' => $totalUnitsReceived,
+                'packages_remaining' => $batch->packages_remaining,
+                'units_remaining' => $batch->units_remaining,
+                'is_out_of_stock' => $batch->isOutOfStock(),
+                'cost_price' => $batch->cost_price,
+                'selling_price' => $batch->selling_price,
+                'manufactured_date' => $batch->manufactured_date?->format('Y-m-d'),
+                'expiry_date' => $batch->expiry_date?->format('Y-m-d'),
+                'is_expired' => $batch->isExpired(),
+                'is_expiring_soon' => $batch->isExpiringSoon($shop->expiry_alert_days ?? 30),
+                'days_until_expiry' => $batch->daysUntilExpiry(),
+                'created_at' => $batch->created_at?->format('Y-m-d'),
+                'product' => [
+                    'uuid' => $batch->product->uuid,
+                    'name' => $batch->product->name,
+                    'dosage_form' => [
+                        'uuid' => $batch->product->dosageForm->uuid,
+                        'name' => $batch->product->dosageForm->name,
+                    ],
+                ],
+            ],
+        ]);
     }
 
+    public function dosageFormInfo(Shop $shop, DosageForm $dosageForm): Response
+    {
+        abort_unless($dosageForm->shop_id === $shop->id, 404);
+
+        $dosageForm->loadCount('products');
+        $dosageForm->load(['products' => fn ($query) => $query->latest()->limit(50)]);
+
+        return Inertia::render('shop/dosage-form-info', [
+            'dosageForm' => [
+                'uuid' => $dosageForm->uuid,
+                'name' => $dosageForm->name,
+                'products_count' => $dosageForm->products_count,
+                'created_at' => $dosageForm->created_at?->format('Y-m-d'),
+            ],
+            'products' => $dosageForm->products->map(fn (Product $product): array => [
+                'uuid' => $product->uuid,
+                'name' => $product->name,
+                'is_active' => $product->is_active,
+            ])->values(),
+        ]);
+    }
 
     public function createDosageForm(Request $request, Shop $shop): RedirectResponse
     {
