@@ -24,7 +24,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Sale $sale
- * @property-read Product $product
+ * @property-read Product|null $product
  * @property-read Batch $batch
  */
 #[Guarded('id', 'uuid')]
@@ -77,6 +77,9 @@ class SaleItem extends Model
         return $this->belongsTo(Batch::class);
     }
 
+    /**
+     * @return BelongsTo<Product, $this>
+     */
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);

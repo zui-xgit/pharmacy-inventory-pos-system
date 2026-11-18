@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
+use stdClass;
 
 class ReportsAndInsightsController extends Controller
 {
@@ -33,10 +34,10 @@ class ReportsAndInsightsController extends Controller
                 'uuid' => $item->uuid,
                 'product' => [
                     'uuid' => $item->product?->uuid,
-                    'name' => $item->product?->name ?? 'Deleted product',
+                    'name' => $item->product->name ?? 'Deleted product',
                     'dosage_form' => $item->product?->dosageForm?->name,
                 ],
-                'batch_number' => $item->batch?->batch_number,
+                'batch_number' => $item->batch->batch_number,
                 'quantity' => $item->quantity,
                 'unit_price' => (float) $item->unit_price,
                 'subtotal' => (float) $item->subtotal,
@@ -65,7 +66,7 @@ class ReportsAndInsightsController extends Controller
                 'phone' => $shop->phone,
                 'currency_symbol' => $shop->currency_symbol,
             ],
-            'receipt_data' => ReceiptBuilder::fromSale($shop, $sale)
+            'receipt_data' => ReceiptBuilder::fromSale($shop, $sale),
         ]);
     }
 
@@ -121,7 +122,7 @@ class ReportsAndInsightsController extends Controller
             $totalProfit += $sale->profit();
         }
 
-        $topProducts = SaleItem::query()
+        $topProducts = DB::table('sale_items')
             ->join('sales', 'sale_items.sale_id', '=', 'sales.id')
             ->join('batches', 'sale_items.batch_id', '=', 'batches.id')
             ->where('sales.shop_id', $shop->id)
@@ -141,8 +142,8 @@ class ReportsAndInsightsController extends Controller
             ->orderByDesc('total_qty')
             ->limit(10)
             ->get()
-            ->map(function ($row) {
-                $product = Product::query()->select('id', 'name')->find($row->product_id);
+            ->map(function (stdClass $row) {
+                $product = Product::query()->select('id', 'name')->find((int) $row->product_id);
 
                 return [
                     'product_id' => $row->product_id,

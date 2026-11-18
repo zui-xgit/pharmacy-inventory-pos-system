@@ -27,7 +27,7 @@ class CatalogController extends Controller
 
         $search_input = $request->input('search');
         $search = strtolower($search_input);
-    
+
         $products = Product::where('shop_id', $shop->id)
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
@@ -175,8 +175,8 @@ class CatalogController extends Controller
                 'is_out_of_stock' => $batch->isOutOfStock(),
                 'cost_price' => $batch->cost_price,
                 'selling_price' => $batch->selling_price,
-                'manufactured_date' => $batch->manufactured_date?->format('Y-m-d'),
-                'expiry_date' => $batch->expiry_date?->format('Y-m-d'),
+                'manufactured_date' => $batch->manufactured_date->format('Y-m-d'),
+                'expiry_date' => $batch->expiry_date->format('Y-m-d'),
                 'is_expired' => $batch->isExpired(),
                 'is_expiring_soon' => $batch->isExpiringSoon($shop->expiry_alert_days ?? 30),
                 'days_until_expiry' => $batch->daysUntilExpiry(),
@@ -226,8 +226,8 @@ class CatalogController extends Controller
                 'is_out_of_stock' => $batch->isOutOfStock(),
                 'cost_price' => $batch->cost_price,
                 'selling_price' => $batch->selling_price,
-                'manufactured_date' => $batch->manufactured_date?->format('Y-m-d'),
-                'expiry_date' => $batch->expiry_date?->format('Y-m-d'),
+                'manufactured_date' => $batch->manufactured_date->format('Y-m-d'),
+                'expiry_date' => $batch->expiry_date->format('Y-m-d'),
                 'is_expired' => $batch->isExpired(),
                 'is_expiring_soon' => $batch->isExpiringSoon($shop->expiry_alert_days ?? 30),
                 'days_until_expiry' => $batch->daysUntilExpiry(),

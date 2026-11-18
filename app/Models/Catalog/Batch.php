@@ -32,7 +32,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
- * @property-read Product $product
+ * @property-read Product|null $product
  * @property-read Shop $shop
  */
 #[Guarded('id')]

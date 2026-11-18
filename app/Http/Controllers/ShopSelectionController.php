@@ -4,19 +4,18 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class ShopSelectionController extends Controller
 {
-    //
-
-    public function index(Request $request)
+    public function index(Request $request): Response
     {
         $search = trim((string) $request->query('search', ''));
 
         $shops = $request->user()
             ->shops()
             ->when($search !== '', function ($query) use ($search) {
-                $term = '%' . mb_strtolower($search, 'UTF-8') . '%';
+                $term = '%'.mb_strtolower($search, 'UTF-8').'%';
 
                 $query->where(function ($q) use ($term) {
                     $q->whereRaw('LOWER(shops.name) LIKE ?', [$term])
@@ -33,7 +32,7 @@ class ShopSelectionController extends Controller
             ]);
 
         return Inertia::render('shop/shop-selection/select-shop', [
-            'shops'   => $shops,
+            'shops' => $shops,
             'filters' => [
                 'search' => $search ?: null,
             ],

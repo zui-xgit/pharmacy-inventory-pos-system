@@ -3,7 +3,7 @@
 namespace App\Support\Activity;
 
 use Illuminate\Support\Facades\Auth;
-use Spatie\Activitylog\Contracts\Activity as ActivityContract;
+use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Support\ActivityLogger;
 
 /**
@@ -28,8 +28,8 @@ class ShopActivity
     public static function for(int $shopId, string $logName = 'system'): ActivityLogger
     {
 
-        return activity($logName)->tap(function (ActivityContract $activity) use ($shopId) {
-            $activity->shop_id = $shopId;
+        return activity($logName)->tap(function (Activity $activity) use ($shopId) {
+            $activity->setAttribute('shop_id', $shopId);
         });
     }
 
