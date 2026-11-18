@@ -181,7 +181,7 @@ const ReceiveStock = ({
                 } else {
                     setShowConfirm(false);
                     toast.success(`Product Batch added successfully !`, {
-                        position: 'top-right',
+                        position: 'top-center',
                         richColors: true,
                     });
 
@@ -193,7 +193,7 @@ const ReceiveStock = ({
             onError: (errors) => {
                 if (errors.error) {
                     toast.error(errors.error, {
-                        position: 'top-right',
+                        position: 'top-center',
                         richColors: true,
                     });
                 }

@@ -51,6 +51,7 @@ import DashboardInnerLayout from '@/layouts/app/dashboard-inner-layout';
 import { formatCurrency, formatDate, isExpired } from '@/lib/utils';
 import shop from '@/routes/shop';
 import Heading from '@/components/heading';
+import { ReceiptData, ReceiptSheet } from '@/components/sheets/receipt-sheet';
 
 export interface PaginatedResponse<T> {
     data: T[];
@@ -345,6 +346,8 @@ function BatchButton({
 }
 
 function OrderPanel() {
+    const [receiptSheetOpen, setReceiptSheetOpen] = useState(false);
+    const [receiptData, setReceiptData] = useState<ReceiptData | null>(null);
     // active_shop comes from your shared Inertia props (posIndex doesn't send it)
     const { active_shop } = usePage<{ active_shop?: { uuid: string } }>().props;
     const shopUuid = active_shop?.uuid;
@@ -404,10 +407,9 @@ function OrderPanel() {
                 onStart: () => setLoading(true),
                 onSuccess: ({ flash }) => {
                     clearCart();
-
-                    //TODO: FLASH RECEIPTS
-                    if (flash.receipt) {
-                        console.log(flash.receipt);
+                    if (flash.sale_receipt) {
+                        setReceiptData(flash.sale_receipt as ReceiptData);
+                        setReceiptSheetOpen(true);
                     }
                 },
                 onError: (errors) => {
@@ -424,140 +426,156 @@ function OrderPanel() {
     };
 
     return (
-        <Card className="col-span-12 lg:col-span-4">
-            <CardHeader>
-                <div className="flex items-start justify-between gap-2">
-                    <div>
-                        <CardTitle className="flex items-center gap-2 text-sm">
-                            <ReceiptText className="size-4 text-primary" />
-                            Current order
-                        </CardTitle>
-                        <CardDescription className="text-xs">
-                            {totalItems} {totalItems === 1 ? 'item' : 'items'}
-                        </CardDescription>
-                    </div>
-
-                    {cart.length > 0 && (
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={clearCart}
-                            disabled={loading}
-                            className="shrink-0 cursor-pointer text-muted-foreground hover:text-destructive"
-                        >
-                            <Trash2 className="size-3.5" />
-                            Clear
-                        </Button>
-                    )}
-                </div>
-            </CardHeader>
-
-            <CardContent className="flex flex-col gap-2">
-                {cart.length === 0 ? (
-                    <Empty className="min-h-60 border border-dashed">
-                        <EmptyHeader>
-                            <EmptyMedia variant="icon">
-                                <ShoppingCart />
-                            </EmptyMedia>
-                            <EmptyTitle>Your cart is empty</EmptyTitle>
-                            <EmptyDescription>
-                                Select a batch from the product list to start
-                                building this sale.
-                            </EmptyDescription>
-                        </EmptyHeader>
-                    </Empty>
-                ) : (
-                    cart.map((item) => (
-                        <CartLine key={item.batch_id} item={item} />
-                    ))
-                )}
-            </CardContent>
-
-            {cart.length > 0 && (
-                <CardFooter className="flex-col items-stretch gap-3">
-                    <Separator />
-
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span>Total cost</span>
-                        <span className="font-medium text-foreground">
-                            {formatCurrency(recommendedTotal)}
-                        </span>
-                    </div>
-
-                    <div className="flex flex-col gap-2 rounded-lg border border-primary/20 bg-primary/5 p-3">
-                        <Label
-                            htmlFor="final-total"
-                            className="text-xs font-semibold"
-                        >
-                            Final Cost
-                        </Label>
-
-                        <Input
-                            id="final-total"
-                            type="number"
-                            min={0}
-                            step="0.01"
-                            inputMode="decimal"
-                            value={finalTotalInput}
-                            onChange={(event) =>
-                                setManualTotal({
-                                    signature: cartSignature,
-                                    value: event.target.value,
-                                })
-                            }
-                        />
-
-                        <p className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <Sparkles className="size-3 text-primary" />
-                            {isManualTotal && adjustment !== 0
-                                ? `${adjustment > 0 ? 'Above' : 'Below'} the recommended total by ${formatCurrency(Math.abs(adjustment))}`
-                                : 'You can override the final price before checkout.'}
-                        </p>
-                    </div>
-
-                    <ConfirmAlertDialog
-                        trigger={
-                            <Button
-                                size="lg"
-                                className="w-full"
-                                disabled={
-                                    loading || !hasValidFinalTotal || !shopUuid
-                                }
-                            >
-                                {loading ? (
-                                    <Spinner />
-                                ) : (
-                                    <>
-                                        Checkout
-                                        <ArrowRight className="size-4" />
-                                    </>
-                                )}
-                            </Button>
-                        }
-                        title="Confirm checkout"
-                        description={
-                            <span>
-                                Complete this sale for{' '}
-                                <span className="font-medium text-foreground">
-                                    {totalItems}{' '}
-                                    {totalItems === 1 ? 'item' : 'items'}
-                                </span>{' '}
-                                with a final price of{' '}
-                                <span className="font-medium text-foreground">
-                                    {hasValidFinalTotal
-                                        ? formatCurrency(parsedFinalTotal)
-                                        : '—'}
-                                </span>
-                                ?
-                            </span>
-                        }
-                        actionText="Yes, complete sale"
-                        cancelText="Cancel"
-                        onConfirm={performCheckout}
-                    />
-                </CardFooter>
+        <>
+            {receiptData && (
+                <ReceiptSheet
+                    data={receiptData}
+                    open={receiptSheetOpen}
+                    onOpenChange={(open) => {
+                        setReceiptSheetOpen(open);
+                        if (!open) setReceiptData(null);
+                    }}
+                />
             )}
-        </Card>
+
+            <Card className="col-span-12 lg:col-span-4">
+                <CardHeader>
+                    <div className="flex items-start justify-between gap-2">
+                        <div>
+                            <CardTitle className="flex items-center gap-2 text-sm">
+                                <ReceiptText className="size-4 text-primary" />
+                                Current order
+                            </CardTitle>
+                            <CardDescription className="text-xs">
+                                {totalItems}{' '}
+                                {totalItems === 1 ? 'item' : 'items'}
+                            </CardDescription>
+                        </div>
+
+                        {cart.length > 0 && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={clearCart}
+                                disabled={loading}
+                                className="shrink-0 cursor-pointer text-muted-foreground hover:text-destructive"
+                            >
+                                <Trash2 className="size-3.5" />
+                                Clear
+                            </Button>
+                        )}
+                    </div>
+                </CardHeader>
+
+                <CardContent className="flex flex-col gap-2">
+                    {cart.length === 0 ? (
+                        <Empty className="min-h-60 border border-dashed">
+                            <EmptyHeader>
+                                <EmptyMedia variant="icon">
+                                    <ShoppingCart />
+                                </EmptyMedia>
+                                <EmptyTitle>Your cart is empty</EmptyTitle>
+                                <EmptyDescription>
+                                    Select a batch from the product list to
+                                    start building this sale.
+                                </EmptyDescription>
+                            </EmptyHeader>
+                        </Empty>
+                    ) : (
+                        cart.map((item) => (
+                            <CartLine key={item.batch_id} item={item} />
+                        ))
+                    )}
+                </CardContent>
+
+                {cart.length > 0 && (
+                    <CardFooter className="flex-col items-stretch gap-3">
+                        <Separator />
+
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <span>Total cost</span>
+                            <span className="font-medium text-foreground">
+                                {formatCurrency(recommendedTotal)}
+                            </span>
+                        </div>
+
+                        <div className="flex flex-col gap-2 rounded-lg border border-primary/20 bg-primary/5 p-3">
+                            <Label
+                                htmlFor="final-total"
+                                className="text-xs font-semibold"
+                            >
+                                Final Cost
+                            </Label>
+
+                            <Input
+                                id="final-total"
+                                type="number"
+                                min={0}
+                                step="0.01"
+                                inputMode="decimal"
+                                value={finalTotalInput}
+                                onChange={(event) =>
+                                    setManualTotal({
+                                        signature: cartSignature,
+                                        value: event.target.value,
+                                    })
+                                }
+                            />
+
+                            <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                                <Sparkles className="size-3 text-primary" />
+                                {isManualTotal && adjustment !== 0
+                                    ? `${adjustment > 0 ? 'Above' : 'Below'} the recommended total by ${formatCurrency(Math.abs(adjustment))}`
+                                    : 'You can override the final price before checkout.'}
+                            </p>
+                        </div>
+
+                        <ConfirmAlertDialog
+                            trigger={
+                                <Button
+                                    size="lg"
+                                    className="w-full"
+                                    disabled={
+                                        loading ||
+                                        !hasValidFinalTotal ||
+                                        !shopUuid
+                                    }
+                                >
+                                    {loading ? (
+                                        <Spinner />
+                                    ) : (
+                                        <>
+                                            Checkout
+                                            <ArrowRight className="size-4" />
+                                        </>
+                                    )}
+                                </Button>
+                            }
+                            title="Confirm checkout"
+                            description={
+                                <span>
+                                    Complete this sale for{' '}
+                                    <span className="font-medium text-foreground">
+                                        {totalItems}{' '}
+                                        {totalItems === 1 ? 'item' : 'items'}
+                                    </span>{' '}
+                                    with a final price of{' '}
+                                    <span className="font-medium text-foreground">
+                                        {hasValidFinalTotal
+                                            ? formatCurrency(parsedFinalTotal)
+                                            : '—'}
+                                    </span>
+                                    ?
+                                </span>
+                            }
+                            actionText="Yes, complete sale"
+                            cancelText="Cancel"
+                            onConfirm={performCheckout}
+                        />
+                    </CardFooter>
+                )}
+            </Card>
+        </>
     );
 }
 

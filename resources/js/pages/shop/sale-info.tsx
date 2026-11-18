@@ -29,6 +29,7 @@ import DashboardInnerLayout from '@/layouts/app/dashboard-inner-layout';
 import { formatDateTime } from '@/lib/utils';
 import shop from '@/routes/shop';
 import BackButton from '@/components/back-button';
+import { ReceiptData, ReceiptSheet } from '@/components/sheets/receipt-sheet';
 
 interface SaleItem {
     uuid: string;
@@ -43,7 +44,7 @@ interface SaleItem {
     subtotal: number;
 }
 
-interface Props {
+interface SaleInfoProps {
     sale: {
         uuid: string;
         receipt_number: string;
@@ -63,6 +64,7 @@ interface Props {
         phone: string;
         currency_symbol: string;
     };
+    receipt_data: ReceiptData;
 }
 
 const statusBadge = (status: string) => {
@@ -92,7 +94,12 @@ const statusBadge = (status: string) => {
     }
 };
 
-const SaleInfo = ({ sale, items, shop: saleShop }: Props) => {
+const SaleInfo = ({
+    sale,
+    items,
+    shop: saleShop,
+    receipt_data,
+}: SaleInfoProps) => {
     const { active_shop } = usePage<{
         active_shop: { uuid: string };
     }>().props;
@@ -102,11 +109,6 @@ const SaleInfo = ({ sale, items, shop: saleShop }: Props) => {
             minimumFractionDigits: 0,
             maximumFractionDigits: 2,
         })}`;
-
-    const handlePrintReceipt = () => {
-        // TODO: implement actual receipt printing later.
-        console.log('Print receipt requested', { sale, items, shop: saleShop });
-    };
 
     return (
         <DashboardInnerLayout>
@@ -129,13 +131,15 @@ const SaleInfo = ({ sale, items, shop: saleShop }: Props) => {
                             />
                         </div>
 
-                        <Button
-                            className="w-full cursor-pointer sm:w-auto"
-                            onClick={handlePrintReceipt}
-                        >
-                            <Printer className="mr-2 h-4 w-4" />
-                            Print receipt
-                        </Button>
+                        <ReceiptSheet
+                            data={receipt_data}
+                            trigger={
+                                <Button className="w-full cursor-pointer sm:w-auto">
+                                    <Printer className="mr-2 h-4 w-4" />
+                                    View receipt
+                                </Button>
+                            }
+                        />
                     </div>
                 </div>
 

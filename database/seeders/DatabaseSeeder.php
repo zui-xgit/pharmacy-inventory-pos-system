@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
         Permission::create(['name' => 'inventory and stock management']);
         Permission::create(['name' => 'reports and insights management']);
         Permission::create(['name' => 'staff management']);
+        Permission::create(['name' => 'view activity logs']); 
 
         // update cache to know about the newly created permissions (required if using WithoutModelEvents in seeders)
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();

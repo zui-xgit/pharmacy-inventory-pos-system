@@ -8,7 +8,7 @@ export function useCan() {
         can: (permission: Permission): boolean =>
             auth.user.permissions.includes(permission),
         hasRole: (role: Role): boolean => auth.user.roles.includes(role),
-        hasAnyRole: (roles: Role[]) =>
+        hasAnyRole: (roles: Role[]): boolean =>
             roles.some((role) => auth.user.roles.includes(role)),
     };
 }

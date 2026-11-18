@@ -6,6 +6,7 @@ use App\Http\Controllers\PosController;
 use App\Http\Controllers\ReportsAndInsightsController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\SecurityController;
+use App\Http\Controllers\ShopLogsController;
 use App\Http\Controllers\ShopSelectionController;
 use App\Http\Controllers\ShopStaffController;
 use App\Http\Controllers\StockController;
@@ -54,7 +55,7 @@ Route::prefix('shop/{shop:uuid}')->middleware(['auth', 'verified', 'check.status
     Route::get('staff/profile', [ProfileController::class, 'staffProfileEdit'])->name('shop.staff-profile');
     Route::get('staff/security', [SecurityController::class, 'staffSecurityEdit'])->name('shop.staff-security');
     Route::get('staff/appearance', function (Shop $shop) {
-        return Inertia::render('staff-settings/appearance');
+        return Inertia::render('shop/system/settings/appearance');
     })->name('shop.staff-appearance');
 
     // staff
@@ -85,6 +86,10 @@ Route::prefix('shop/{shop:uuid}')->middleware(['auth', 'verified', 'check.status
             ->scopeBindings(); 
     });
 
+    Route::middleware(['permission:view activity logs'])->group(function (){
+         Route::get('/logs', [ShopLogsController::class, 'activityLogs'])->name('shop.logs'); 
+    }); 
+
 });
 
 Route::middleware(['auth', 'verified', 'check.status', 'role:manager|cashier', ])->group(function () {
@@ -108,6 +113,11 @@ Route::middleware('guest')->group(function () {
         return Inertia::render('account-status/suspended');
     })->name('account.suspended');
 });
+
+
+// Route::get('/test', function () {
+//    return Inertia::render("test"); 
+// })->name('test'); 
 
 require __DIR__.'/admin.php';
 

@@ -225,6 +225,29 @@ export function AppSidebar() {
                                         </SidebarMenuButton>
                                     </SidebarMenuItem>
                                 )}
+                                {can('view activity logs') && (
+                                    <SidebarMenuItem>
+                                        <SidebarMenuButton
+                                            asChild
+                                            isActive={isCurrentUrl(
+                                                shop.logs({
+                                                    shop: active_shop.uuid,
+                                                }),
+                                            )}
+                                            tooltip={'Staff'}
+                                        >
+                                            <Link
+                                                href={shop.logs({
+                                                    shop: active_shop.uuid,
+                                                })}
+                                                prefetch
+                                            >
+                                                <Activity />
+                                                <span>Logs</span>
+                                            </Link>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                )}
                                 <SidebarMenuItem>
                                     <SidebarMenuButton
                                         asChild

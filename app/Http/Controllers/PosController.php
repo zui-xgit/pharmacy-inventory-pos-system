@@ -11,6 +11,7 @@ use App\Models\Inventory\StockMovement;
 use App\Models\Sales\Sale;
 use App\Models\Sales\SaleItem;
 use App\Services\PosService;
+use App\Support\ReceiptBuilder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -115,6 +116,8 @@ class PosController extends Controller
 
             $batches = Batch::whereIn('id', $batchIds)
                 ->where('shop_id', $shop->id)
+                // CHANGED: eager load product + dosage form once (no lazy loading per item)
+                ->with(['product:id,name,dosage_form_id', 'product.dosageForm:id,name'])
                 ->lockForUpdate()
                 ->get()
                 ->keyBy('id');
@@ -132,15 +135,29 @@ class PosController extends Controller
                 }
             }
 
+            // CHANGED: compute the real total from database prices
+            $computedTotal = collect($items)->sum(
+                fn ($item) => $batches->get($item['batch_id'])->selling_price * $item['quantity']
+            );
+
+            // CHANGED: never trust final_total blindly — it can only be a discount, never higher
+            if ((float) $validated['final_total'] > (float) $computedTotal) {
+                DB::rollBack();
+
+                return back()->withErrors([
+                    'final_total' => 'The total cannot be higher than the sum of the items.',
+                ]);
+            }
+
             // ── Step 2: Generate receipt number ───────────────────────────────
             $receiptNumber = $posService->generateReceiptNumber($shop);
 
             // ── Step 3: Create the sale record ───────────────────────────────
-            $totalAmount = $validated['final_total'];
+            $totalAmount = (float) $validated['final_total'];
 
             $sale = Sale::create([
                 'shop_id' => $shop->id,
-                'sold_by' => Auth::id(), // who made the sale
+                'sold_by' => Auth::id(),
                 'receipt_number' => $receiptNumber,
                 'total_amount' => $totalAmount,
                 'status' => 'completed',
@@ -157,7 +174,6 @@ class PosController extends Controller
                 $quantityBefore = $batch->units_remaining;
                 $quantityAfter = $quantityBefore - $item['quantity'];
 
-                // Calculate updated package count based on remaining units
                 $packagesRemaining = $batch->units_per_package_received > 0
                     ? (int) floor($quantityAfter / $batch->units_per_package_received)
                     : $batch->packages_remaining;
@@ -166,20 +182,20 @@ class PosController extends Controller
                 SaleItem::create([
                     'sale_id' => $sale->id,
                     'batch_id' => $batch->id,
-                    'product_id' => $batch->product->id,
+                    'product_id' => $batch->product_id, // CHANGED: column already on batch, no relation needed
                     'quantity' => $item['quantity'],
                     'unit_price' => $batch->selling_price,
                     'cost_price' => $batch->cost_price,
                     'subtotal' => $batch->selling_price * $item['quantity'],
                 ]);
 
-                // 4b. Update live inventory directly on the batch table
+                // 4b. Update live inventory on the batch
                 $batch->update([
                     'units_remaining' => $quantityAfter,
                     'packages_remaining' => $packagesRemaining,
                 ]);
 
-                // 4c. Log movement in stock_movements ledger for auditing
+                // 4c. Log movement in the ledger
                 StockMovement::create([
                     'batch_id' => $batch->id,
                     'performed_by' => Auth::id(),
@@ -191,37 +207,11 @@ class PosController extends Controller
                 ]);
             }
 
+
             DB::commit();
 
             Inertia::flash('toast', ['type' => 'success', 'message' => __('Sale made successfully.')]);
-
-            // T0D0:  receipt flash message
-            Inertia::flash('receipt', [
-                'id' => $sale->id,
-                'receipt_number' => $sale->receipt_number,
-                'total_amount' => (float) $sale->total_amount,
-                'status' => $sale->status,
-                'sold_by' => Auth::user()?->firstname.' '.Auth::user()->lastname,
-                'created_at' => $sale->created_at->toISOString(),
-
-                'shop' => [
-                    'name' => $shop->name,
-                    'location' => $shop->location,
-                    'phone' => $shop->phone,
-                ],
-
-                'items' => collect($items)->map(function ($item) use ($batches) {
-                    $batch = $batches->get($item['batch_id']);
-
-                    return [
-                        'batch_number' => $batch->batch_number,
-                        'product_name' => $batch->product?->name,
-                        'quantity' => $item['quantity'],
-                        'unit_price' => (float) $batch->selling_price,
-                        'subtotal' => (float) ($batch->selling_price * $item['quantity']),
-                    ];
-                })->values()->all(),
-            ]);
+            Inertia::flash('sale_receipt', ReceiptBuilder::fromSale($shop, $sale));
 
             return back();
 

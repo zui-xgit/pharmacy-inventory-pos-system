@@ -1,7 +1,8 @@
 export type Permission =
     | 'inventory and stock management'
     | 'reports and insights management'
-    | 'staff management';
+    | 'staff management'
+    | 'view activity logs';
 
 export type Role = 'admin' | 'manager' | 'cashier';
 

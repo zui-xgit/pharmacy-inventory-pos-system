@@ -7,6 +7,7 @@ use App\Models\Catalog\Product;
 use App\Models\Core\Shop;
 use App\Models\Sales\Sale;
 use App\Models\Sales\SaleItem;
+use App\Support\ReceiptBuilder;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -64,6 +65,7 @@ class ReportsAndInsightsController extends Controller
                 'phone' => $shop->phone,
                 'currency_symbol' => $shop->currency_symbol,
             ],
+            'receipt_data' => ReceiptBuilder::fromSale($shop, $sale)
         ]);
     }
 

@@ -22,7 +22,7 @@ createInertiaApp({
                 return AuthLayout;
             case name.startsWith('settings/'):
                 return [AppLayout, SettingsLayout];
-            case name.startsWith('staff-settings/'):
+            case name.startsWith('shop/system/settings'):
                 return [AppLayout, StaffSettingsLayout];
             case name.startsWith('shop/catalog/'):
                 return [AppLayout, ShopCatalogLayout];
