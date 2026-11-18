@@ -21,7 +21,6 @@ import StatCard from '@/components/dashboard/stat-card';
 import { ConfirmAlertDialog } from '@/components/dialogs/confirm-alert-dialog';
 import CreateStaffDialog from '@/components/dialogs/create-staff-dialog';
 import StaffCredentialsDialog from '@/components/dialogs/staff-credentials-dialog';
-import StaffDetailsDialog from '@/components/dialogs/staff-details-dialog';
 import Heading from '@/components/heading';
 import RefreshButton from '@/components/refresh-button';
 import SearchInput from '@/components/search-input';
@@ -65,7 +64,6 @@ import {
 } from '@/components/ui/popover';
 
 import { Auth } from '@/types';
-import { toast } from 'sonner';
 import ShopFilter from '@/components/user-filter-by-shop';
 
 interface PaginationLink {
@@ -203,9 +201,6 @@ export default function StaffManagement({
     const getInitials = useInitials();
     const { auth } = usePage<{ auth: Auth }>().props;
 
-    const [selectedMember, setSelectedMember] = useState<StaffMember | null>(
-        null,
-    );
     const [passwordMember, setPasswordMember] = useState<StaffMember | null>(
         null,
     );
@@ -434,7 +429,14 @@ export default function StaffManagement({
                                                     member.uuid !==
                                                     auth.user.uuid
                                                 ) {
-                                                    setSelectedMember(member);
+                                                    // setSelectedMember(member);
+                                                    //
+
+                                                    router.get(
+                                                        admin.staffDetails({
+                                                            user: member.uuid,
+                                                        }),
+                                                    );
                                                 }
                                             }}
                                         >
@@ -598,8 +600,12 @@ export default function StaffManagement({
                                                             <DropdownMenuItem
                                                                 className="cursor-pointer"
                                                                 onSelect={() => {
-                                                                    setSelectedMember(
-                                                                        member,
+                                                                    router.get(
+                                                                        admin.staffDetails(
+                                                                            {
+                                                                                user: member.uuid,
+                                                                            },
+                                                                        ),
                                                                     );
                                                                 }}
                                                             >
@@ -743,17 +749,6 @@ export default function StaffManagement({
                     </Card>
                 )}
 
-                <StaffDetailsDialog
-                    member={selectedMember}
-                    availableRoles={available_roles}
-                    availablePermissions={available_permissions}
-                    availableShops={available_shops}
-                    onOpenChange={(open) => {
-                        if (!open) {
-                            setSelectedMember(null);
-                        }
-                    }}
-                />
                 <StaffCredentialsDialog
                     member={passwordMember}
                     onOpenChange={(open) => {

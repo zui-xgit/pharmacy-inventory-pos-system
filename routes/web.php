@@ -65,24 +65,27 @@ Route::prefix('shop/{shop:uuid}')->middleware(['auth', 'verified', 'check.status
         // Scoped bindings would resolve the user through Shop::users(), turning
         // cross-shop requests into 404s. Resolve the user globally and let thes
         // controller/middleware return a 403 for staff outside this shop.
+        Route::get('shop-staff/{user:uuid}/staff-details', [ShopStaffController::class, 'staffDetails'])->name('shop.staff-details') 
+            ->middleware('can:view,user'); 
+
         Route::patch('shop-staff/{user:uuid}/update', [ShopStaffController::class, 'updateStaff'])
-            ->name('shop.staff-update')
-            ->middleware('can:updateSelfUser,user')
+            ->name('shop.staff-update') 
+            ->middleware('can:updateUser,user') 
             ->scopeBindings();
 
         Route::patch('shop-staff/{user:uuid}/update-credentials', [ShopStaffController::class, 'updateCredentials'])
             ->name('shop.staff-update-credentials')
-            ->middleware('can:updateSelfUser,user')
+            ->middleware('can:updateUser,user')
             ->scopeBindings();
 
         Route::patch('shop-staff/{user:uuid}/activate', [ShopStaffController::class, 'activateStaff'])
             ->name('shop.staff-activate')
-            ->middleware('can:updateSelfUser,user')
+            ->middleware('can:updateUser,user')
             ->scopeBindings();
         
         Route::patch('shop-staff/{user:uuid}/suspend', [ShopStaffController::class, 'suspendStaff'])
             ->name('shop.staff-suspend')
-            ->middleware('can:updateSelfUser,user')
+            ->middleware('can:updateUser,user')
             ->scopeBindings(); 
     });
 

@@ -16,12 +16,14 @@ class UserPolicy
      */
 
 
-    public function updateSelfUser(User $user, User $model): Response 
+    public function updateUser(User $user, User $model): Response 
     {
         return $user->uuid !== $model->uuid
             ? Response::allow()
             : Response::deny('FORBIDDEN');
     }
+    
+    
     
  
 
@@ -39,9 +41,11 @@ class UserPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, User $model): bool
+    public function view(User $user, User $model): Response
     {
-        return false;
+        return $user->uuid !== $model->uuid
+          ? Response::allow()
+          : Response::deny('FORBIDDEN');
     }
 
     /**

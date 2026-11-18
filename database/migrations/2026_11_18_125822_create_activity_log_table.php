@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Core\Shop;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -10,6 +11,14 @@ return new class extends Migration
     {
         Schema::create('activity_log', function (Blueprint $table) {
             $table->id();
+
+            // Activities are always scoped to the shop they happened in so a
+            // multi-tenant install never leaks another shop's history.
+            $table->foreignIdFor(Shop::class)
+                ->nullable()
+                ->constrained()
+                ->cascadeOnDelete();
+
             $table->string('log_name')->nullable()->index();
             $table->text('description');
             $table->nullableMorphs('subject', 'subject');
@@ -18,6 +27,16 @@ return new class extends Migration
             $table->json('attribute_changes')->nullable();
             $table->json('properties')->nullable();
             $table->timestamps();
+
+            $table->index(['shop_id', 'created_at']);
         });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('activity_log');
     }
 };

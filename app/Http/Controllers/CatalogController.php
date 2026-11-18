@@ -6,10 +6,12 @@ use App\Models\Catalog\Batch;
 use App\Models\Catalog\DosageForm;
 use App\Models\Catalog\Product;
 use App\Models\Core\Shop;
+use App\Support\Activity\ShopActivity;
 use Exception;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -25,7 +27,7 @@ class CatalogController extends Controller
 
         $search_input = $request->input('search');
         $search = strtolower($search_input);
-
+    
         $products = Product::where('shop_id', $shop->id)
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
@@ -285,9 +287,16 @@ class CatalogController extends Controller
 
         try {
             DB::beginTransaction();
-            $shop->dosageForms()->create([
+            $dosageForm = $shop->dosageForms()->create([
                 'name' => $validated['name'],
             ]);
+
+            ShopActivity::for($shop->id, 'catalog')
+                ->performedOn($dosageForm)
+                ->causedBy(Auth::user())
+                ->event('created')
+                ->log("Dosage form {$dosageForm->name} created");
+
             DB::commit();
 
             return back();
@@ -328,11 +337,17 @@ class CatalogController extends Controller
             // Fetch the unit by UUID
             $dosage_form = $shop->dosageForms()->where('uuid', $validated['dosage_form_uuid'])->firstOrFail();
 
-            $shop->products()->create([
+            $product = $shop->products()->create([
                 'name' => $validated['name'],
                 'dosage_form_id' => $dosage_form->id,
                 // 'sku' => $validated['sku'],
             ]);
+
+            ShopActivity::for($shop->id, 'catalog')
+                ->performedOn($product)
+                ->causedBy(Auth::user())
+                ->event('created')
+                ->log("Product {$product->name} added to the catalog");
 
             DB::commit();
 
@@ -393,7 +408,7 @@ class CatalogController extends Controller
                 ->firstOrFail();
 
             // 2. Create batch
-            Batch::create([
+            $batch = Batch::create([
                 'shop_id' => $shop->id,
                 'product_id' => $product->id,
                 'batch_number' => $validated['batch_number'],
@@ -407,6 +422,22 @@ class CatalogController extends Controller
                 'packages_remaining' => $validated['packages_received'],
                 'units_remaining' => $totalQuantityReceived,
             ]);
+
+            ShopActivity::for($shop->id, 'inventory')
+                ->performedOn($batch)
+                ->causedBy(Auth::user())
+                ->event('stock.received')
+                ->withProperties([
+                    'batch_number' => $batch->batch_number,
+                    'product' => $product->name,
+                    'packages_received' => $batch->packages_received,
+                    'units_per_package_received' => $batch->units_per_package_received,
+                    'total_units_received' => $totalQuantityReceived,
+                    'cost_price' => $batch->cost_price,
+                    'selling_price' => $batch->selling_price,
+                    'expiry_date' => $validated['expiry_date'],
+                ])
+                ->log("Received {$totalQuantityReceived} units of {$product->name} (batch {$batch->batch_number})");
 
             DB::commit();
 

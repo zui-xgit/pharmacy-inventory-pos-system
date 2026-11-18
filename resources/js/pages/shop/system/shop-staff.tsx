@@ -16,7 +16,6 @@ import { useState } from 'react';
 
 import StatCard from '@/components/dashboard/stat-card';
 import ShopStaffCredentialsDialog from '@/components/dialogs/shop-staff-credentials-dialog';
-import ShopStaffDetailsDialog from '@/components/dialogs/shop-staff-details-dialog';
 import Heading from '@/components/heading';
 import RefreshButton from '@/components/refresh-button';
 import SearchInput from '@/components/search-input';
@@ -190,11 +189,11 @@ export default function ShopStaff({
     filters,
 }: ShopStaffProps) {
     const getInitials = useInitials();
-    const { auth } = usePage<{ auth: Auth }>().props;
+    const { active_shop, auth } = usePage<{
+        active_shop: { uuid: string };
+        auth: Auth;
+    }>().props;
 
-    const [selectedMember, setSelectedMember] = useState<StaffMember | null>(
-        null,
-    );
     const [passwordMember, setPasswordMember] = useState<StaffMember | null>(
         null,
     );
@@ -418,7 +417,12 @@ export default function ShopStaff({
                                                     member.uuid !==
                                                     auth.user.uuid
                                                 ) {
-                                                    setSelectedMember(member);
+                                                    router.get(
+                                                        ThisShop.staffDetails({
+                                                            shop: active_shop,
+                                                            user: member.uuid,
+                                                        }),
+                                                    );
                                                 }
                                             }}
                                         >
@@ -516,11 +520,16 @@ export default function ShopStaff({
                                                             <DropdownMenuSeparator />
                                                             <DropdownMenuItem
                                                                 className="cursor-pointer"
-                                                                onSelect={() =>
-                                                                    setSelectedMember(
-                                                                        member,
-                                                                    )
-                                                                }
+                                                                onSelect={() => {
+                                                                    router.get(
+                                                                        ThisShop.staffDetails(
+                                                                            {
+                                                                                shop: active_shop.uuid,
+                                                                                user: member.uuid,
+                                                                            },
+                                                                        ),
+                                                                    );
+                                                                }}
                                                             >
                                                                 <Eye className="h-4 w-4" />
                                                                 View details
@@ -659,17 +668,6 @@ export default function ShopStaff({
                     </Card>
                 )}
 
-                <ShopStaffDetailsDialog
-                    member={selectedMember}
-                    shop={shop}
-                    availableRoles={available_roles}
-                    availablePermissions={available_permissions}
-                    onOpenChange={(open) => {
-                        if (!open) {
-                            setSelectedMember(null);
-                        }
-                    }}
-                />
                 <ShopStaffCredentialsDialog
                     member={passwordMember}
                     shop={shop}

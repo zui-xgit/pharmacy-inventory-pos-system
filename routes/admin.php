@@ -9,17 +9,24 @@ Route::prefix('shops')->middleware(['auth', 'verified', 'check.status',  'role:a
 
     // MANAGEMENT
     Route::get('staff-management', [AdminController::class, 'staffManagement'])->name('admin.staff');
-    Route::patch('staff-management/{user:uuid}/update-credentials', [AdminController::class, 'updateCredentials'])->name('admin.staff-update-credentials');
-    Route::patch('staff-management/{user:uuid}/update-staff', [AdminController::class, 'updateStaff'])->name('admin.staff-update');
+
+    Route::get('staff-management/{user:uuid}/staff-details', [AdminController::class, 'staffDetails'])
+           ->name('admin.staff-details')
+           ->middleware('can:view,user');
+
+    Route::patch('staff-management/{user:uuid}/update-staff', [AdminController::class, 'updateStaff'])
+           ->name('admin.staff-update');
+    Route::patch('staff-management/{user:uuid}/update-credentials', [AdminController::class, 'updateCredentials'])
+           ->name('admin.staff-update-credentials');
+
     Route::get('activiy-logs', [AdminController::class, 'activityLogs'])->name('admin.activity-logs');
 
     // acivate / deactivate / suspend user
     Route::patch('/staff-management/{user:uuid}/activate', [AdminController::class, 'activateStaff'])
-        ->name('admin.activate-staff')->middleware('can:updateSelfUser,user');
-
+        ->name('admin.activate-staff')->middleware('can:updateUser,user');
 
     Route::patch('/staff-management/{user:uuid}/suspend', [AdminController::class, 'suspendStaff'])
-        ->name('admin.suspend-staff')->middleware('can:updateSelfUser,user');
+        ->name('admin.suspend-staff')->middleware('can:updateUser,user');
 
     Route::post('/staff-management/create-staff', [AdminController::class, 'createStaff'])->name('admin.create-staff');
 

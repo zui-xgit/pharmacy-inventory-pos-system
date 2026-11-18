@@ -8,6 +8,7 @@ use App\Models\Catalog\Batch;
 use App\Models\Catalog\Product;
 use App\Models\Core\Shop;
 use App\Models\Inventory\StockMovement;
+use App\Support\Activity\ShopActivity;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -155,6 +156,9 @@ class StockController extends Controller
                 ->firstOrFail();
 
             $previousStock = $batch->units_remaining;
+            $previousPackages = $batch->packages_remaining;
+            $previousManufacturedDate = $batch->manufactured_date?->toDateString();
+            $previousExpiryDate = $batch->expiry_date?->toDateString();
             $newStock = (int) $validated['units_remaining'];
             $difference = $newStock - $previousStock;
 
@@ -179,6 +183,31 @@ class StockController extends Controller
                 'previous_stock' => $previousStock,
                 'new_stock' => $newStock,
             ]);
+
+            ShopActivity::for($shop->id, 'inventory')
+                ->performedOn($batch)
+                ->causedBy(Auth::user())
+                ->event('stock.adjusted')
+                ->withChanges([
+                    'attributes' => [
+                        'units_remaining' => $newStock,
+                        'packages_remaining' => $packagesRemaining,
+                        'manufactured_date' => $validated['manufactured_date'],
+                        'expiry_date' => $validated['expiry_date'],
+                    ],
+                    'old' => [
+                        'units_remaining' => $previousStock,
+                        'packages_remaining' => $previousPackages,
+                        'manufactured_date' => $previousManufacturedDate,
+                        'expiry_date' => $previousExpiryDate,
+                    ],
+                ])
+                ->withProperties([
+                    'reason' => StockMovementReason::ADJUSTMENT->label(),
+                    'quantity_change' => $difference,
+                    'notes' => $validated['notes'] ?? null,
+                ])
+                ->log("Adjusted batch {$batch->batch_number} from {$previousStock} to {$newStock} units");
 
             DB::commit();
 

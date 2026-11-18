@@ -1,20 +1,13 @@
-import { useForm } from '@inertiajs/react';
-import { Pencil, Store } from 'lucide-react';
+import { Head, useForm } from '@inertiajs/react';
+import { ArrowLeft, Pencil, ShieldCheck, Store } from 'lucide-react';
 import type { ChangeEvent, ReactNode } from 'react';
+import { toast } from 'sonner';
 
+import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -24,12 +17,20 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { Spinner } from '@/components/ui/spinner';
 import { useInitials } from '@/hooks/use-initials';
+import DashboardInnerLayout from '@/layouts/app/dashboard-inner-layout';
 import { staffStatusStyles } from '@/lib/staff';
 import type { StaffMember, StaffShop } from '@/lib/staff';
 import { cn, formatDate } from '@/lib/utils';
 import ThisShop from '@/routes/shop';
-import { Spinner } from '../ui/spinner';
+
+interface ShopStaffDetailsProps {
+    member: StaffMember;
+    shop: StaffShop;
+    availableRoles: string[];
+    availablePermissions: string[];
+}
 
 const toggle = (list: string[], value: string) =>
     list.includes(value)
@@ -40,6 +41,39 @@ const Caption = ({ children }: { children: ReactNode }) => (
     <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
         {children}
     </p>
+);
+
+const ReadOnlyField = ({
+    label,
+    children,
+}: {
+    label: string;
+    children: ReactNode;
+}) => (
+    <div className="space-y-1.5">
+        <Caption>{label}</Caption>
+        <div className="flex min-h-9 items-center rounded-md border border-border bg-muted/40 px-3 py-1.5 text-sm text-muted-foreground">
+            {children}
+        </div>
+    </div>
+);
+
+const Field = ({
+    id,
+    label,
+    error,
+    children,
+}: {
+    id: string;
+    label: string;
+    error?: string;
+    children: ReactNode;
+}) => (
+    <div className="space-y-1.5">
+        <Label htmlFor={id}>{label}</Label>
+        {children}
+        <InputError message={error} />
+    </div>
 );
 
 const Section = ({
@@ -62,52 +96,12 @@ const Section = ({
     </section>
 );
 
-const Field = ({
-    id,
-    label,
-    error,
-    children,
-}: {
-    id: string;
-    label: string;
-    error?: string;
-    children: ReactNode;
-}) => (
-    <div className="space-y-1.5">
-        <Label htmlFor={id}>{label}</Label>
-        {children}
-        <InputError message={error} />
-    </div>
-);
-
-const ReadOnlyField = ({
-    label,
-    children,
-}: {
-    label: string;
-    children: ReactNode;
-}) => (
-    <div className="space-y-1.5">
-        <Caption>{label}</Caption>
-        <div className="flex min-h-9 items-center rounded-md border border-border bg-muted/40 px-3 py-1.5 text-sm text-muted-foreground">
-            {children}
-        </div>
-    </div>
-);
-
-const ShopStaffDetailsForm = ({
+const ShopStaffDetails = ({
     member,
     shop,
     availableRoles,
     availablePermissions,
-    onClose,
-}: {
-    member: StaffMember;
-    shop: StaffShop;
-    availableRoles: string[];
-    availablePermissions: string[];
-    onClose: () => void;
-}) => {
+}: ShopStaffDetailsProps) => {
     const getInitials = useInitials();
     const fullName = `${member.firstname} ${member.lastname}`;
 
@@ -163,42 +157,55 @@ const ShopStaffDetailsForm = ({
             }).url,
             {
                 preserveScroll: true,
-                onSuccess: () => onClose(),
+                onError: (errors) => {
+                    if (errors.staff) {
+                        toast.error(errors.staff);
+                    }
+                },
             },
         );
     };
 
     return (
-        <DialogContent className="flex max-h-[92vh] w-[96vw] flex-col gap-0 overflow-hidden rounded-2xl border border-border bg-card p-0 sm:max-w-[900px]">
-            <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-6">
-                <DialogHeader className="gap-4">
-                    <div className="flex items-center gap-4">
-                        <Avatar className="h-14 w-14">
+        <>
+            <Head title={`${fullName} · Staff Details`} />
+
+            <DashboardInnerLayout>
+                <div className="flex flex-col gap-4 border-b border-border/40 pb-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex min-w-0 items-center gap-4">
+                        <Button
+                            variant={'secondary'}
+                            className="cursor-pointer"
+                            onClick={() => window.history.back()}
+                        >
+                            <ArrowLeft />
+                        </Button>
+
+                        <Avatar className="h-12 w-12 shrink-0">
                             <AvatarFallback className="bg-primary/10 text-sm font-semibold text-primary">
                                 {getInitials(fullName)}
                             </AvatarFallback>
                         </Avatar>
-                        <div className="min-w-0 space-y-1">
-                            <DialogTitle className="truncate text-xl font-bold text-foreground">
-                                {fullName}
-                            </DialogTitle>
-                            <DialogDescription className="truncate text-sm text-muted-foreground">
-                                {member.email}
-                            </DialogDescription>
-                        </div>
-                        <span
-                            className={cn(
-                                'ml-auto inline-flex shrink-0 items-center gap-1.5 rounded border px-2.5 py-1 font-mono text-[10px] font-medium capitalize',
-                                staffStatusStyles[member.status],
-                            )}
-                        >
-                            <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                            {member.status}
-                        </span>
-                    </div>
-                </DialogHeader>
 
-                <div className="space-y-5 py-2">
+                        <Heading
+                            variant="small"
+                            title={fullName}
+                            description={member.email}
+                        />
+                    </div>
+
+                    <span
+                        className={cn(
+                            'inline-flex shrink-0 items-center gap-1.5 self-start rounded border px-2.5 py-1 font-mono text-[10px] font-medium capitalize sm:self-auto',
+                            staffStatusStyles[member.status],
+                        )}
+                    >
+                        <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                        {member.status}
+                    </span>
+                </div>
+
+                <div className="mt-4 grid gap-5 lg:grid-cols-2">
                     <Section title="Account Information">
                         <div className="grid gap-4 sm:grid-cols-2">
                             <Field
@@ -281,23 +288,12 @@ const ShopStaffDetailsForm = ({
                             <ReadOnlyField label="Member Since">
                                 {formatDate(member.created_at)}
                             </ReadOnlyField>
-                        </div>
-                    </Section>
 
-                    <Section title="Shop Access">
-                        <div className="flex items-center gap-3 rounded-lg border border-border bg-background p-3">
-                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                                <Store className="h-4 w-4" />
-                            </span>
-                            <div className="leading-tight">
-                                <p className="text-sm font-medium text-foreground">
-                                    {shop.name}
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                    Staff accounts managed here only have access
-                                    to this shop.
-                                </p>
-                            </div>
+                            <ReadOnlyField label="Staff ID">
+                                <span className="font-mono text-xs break-all">
+                                    {member.uuid}
+                                </span>
+                            </ReadOnlyField>
                         </div>
                     </Section>
 
@@ -376,70 +372,73 @@ const ShopStaffDetailsForm = ({
 
                             <InputError message={userForm.errors.permissions} />
                         </div>
-
-                        <ReadOnlyField label="Staff ID">
-                            <span className="font-mono text-xs break-all">
-                                {member.uuid}
-                            </span>
-                        </ReadOnlyField>
                     </Section>
-                </div>
-            </div>
 
-            <DialogFooter className="gap-2 border-t border-border bg-card px-6 py-4">
-                <Button
-                    type="button"
-                    onClick={handleUpdateStaff}
-                    disabled={userForm.processing}
-                    className="cursor-pointer rounded-xl bg-primary text-xs font-semibold text-primary-foreground hover:bg-primary/90"
-                >
-                    {userForm.processing ? (
-                        <Spinner />
-                    ) : (
-                        <Pencil className="h-3.5 w-3.5" />
-                    )}
-                    Update Staff
-                </Button>
-                <DialogClose asChild>
+                    <div className="lg:col-span-2">
+                        <Section title="Shop Access">
+                            <div className="flex items-center gap-3 rounded-lg border border-border bg-background p-3">
+                                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                    <Store className="h-4 w-4" />
+                                </span>
+                                <div className="min-w-0 flex-1 leading-tight">
+                                    <p className="text-sm font-medium break-words text-foreground">
+                                        {shop.name}
+                                    </p>
+                                    {shop.location && (
+                                        <p className="text-xs text-muted-foreground">
+                                            {shop.location}
+                                        </p>
+                                    )}
+                                </div>
+                                <span className="inline-flex shrink-0 items-center gap-1.5 rounded border border-emerald-500/20 bg-emerald-500/5 px-2 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
+                                    <ShieldCheck className="h-3 w-3" />
+                                    Assigned
+                                </span>
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                                Staff accounts managed here only have access to
+                                this shop.
+                            </p>
+                        </Section>
+                    </div>
+                </div>
+
+                <div className="sticky bottom-0 mt-4 flex flex-wrap items-center justify-end gap-2 rounded-xl border border-border bg-card px-5 py-3">
                     <Button
-                        disabled={userForm.processing}
                         type="button"
                         variant="outline"
+                        disabled={userForm.processing}
                         className="cursor-pointer rounded-xl border-border text-xs font-semibold"
+                        onClick={() => window.history.back()}
                     >
-                        Close
+                        Back
                     </Button>
-                </DialogClose>
-            </DialogFooter>
-        </DialogContent>
+                    <Button
+                        type="button"
+                        onClick={handleUpdateStaff}
+                        disabled={userForm.processing}
+                        className="cursor-pointer rounded-xl bg-primary text-xs font-semibold text-primary-foreground hover:bg-primary/90"
+                    >
+                        {userForm.processing ? (
+                            <Spinner />
+                        ) : (
+                            <Pencil className="h-3.5 w-3.5" />
+                        )}
+                        Update Staff
+                    </Button>
+                </div>
+            </DashboardInnerLayout>
+        </>
     );
 };
 
-const ShopStaffDetailsDialog = ({
-    member,
-    shop,
-    availableRoles = [],
-    availablePermissions = [],
-    onOpenChange,
-}: {
-    member: StaffMember | null;
-    shop: StaffShop;
-    availableRoles?: string[];
-    availablePermissions?: string[];
-    onOpenChange: (open: boolean) => void;
-}) => (
-    <Dialog open={member !== null} onOpenChange={onOpenChange}>
-        {member && (
-            <ShopStaffDetailsForm
-                key={member.uuid}
-                member={member}
-                shop={shop}
-                availableRoles={availableRoles}
-                availablePermissions={availablePermissions}
-                onClose={() => onOpenChange(false)}
-            />
-        )}
-    </Dialog>
-);
+ShopStaffDetails.layout = {
+    breadcrumbs: [
+        {
+            title: 'Shop Staff',
+            href: '#',
+        },
+    ],
+};
 
-export default ShopStaffDetailsDialog;
+export default ShopStaffDetails;

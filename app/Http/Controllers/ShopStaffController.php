@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Core\Shop;
 use App\Models\User;
+use App\Support\Activity\ShopActivity;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
@@ -102,6 +103,46 @@ class ShopStaffController extends Controller
     }
 
     /**
+     * Show the details of a staff member that belongs to this shop.
+     */
+    public function staffDetails(Shop $shop, User $user): Response
+    {
+        abort_unless(
+            $this->shopStaffQuery($shop)->whereKey($user->getKey())->exists(),
+            403,
+        );
+
+        $user->loadMissing('shops');
+
+        return Inertia::render('shop/system/shop-staff-details', [
+            'member' => [
+                'uuid' => $user->uuid,
+                'firstname' => $user->firstname,
+                'lastname' => $user->lastname,
+                'gender' => $user->gender,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'status' => $user->status,
+                'roles' => $user->getRoleNames(),
+                'permissions' => $user->getPermissionNames(),
+                'shops' => $user->shops->map(fn (Shop $assignedShop) => [
+                    'uuid' => $assignedShop->uuid,
+                    'name' => $assignedShop->name,
+                    'location' => $assignedShop->location,
+                ])->values(),
+                'created_at' => $user->created_at?->toIso8601String(),
+            ],
+            'shop' => [
+                'uuid' => $shop->uuid,
+                'name' => $shop->name,
+                'location' => $shop->location,
+            ],
+            'availableRoles' => $this->assignableRoles(),
+            'availablePermissions' => Permission::orderBy('name')->pluck('name'),
+        ]);
+    }
+
+    /**
      * Create a staff account and assign it to this shop.
      */
     public function createStaff(Request $request, Shop $shop): RedirectResponse
@@ -148,6 +189,18 @@ class ShopStaffController extends Controller
             // Staff created from a shop are always linked to that shop only.
             $user->shops()->sync([$shop->id]);
 
+            ShopActivity::for($shop->id, 'staff')
+                ->performedOn($user)
+                ->causedBy(Auth::user())
+                ->event('created')
+                ->withProperties([
+                    'username' => $user->username,
+                    'role' => $validated['role'],
+                    'permissions' => $validated['permissions'],
+                    'shop' => $shop->name,
+                ])
+                ->log("Staff member {$validated['firstname']} {$validated['lastname']} created");
+
             DB::commit();
             Inertia::flash('toast', ['type' => 'success', 'message' => __('Staff created successfully.')]);
 
@@ -178,6 +231,16 @@ class ShopStaffController extends Controller
             'permissions.*' => ['string', Rule::exists('permissions', 'name')],
         ]);
 
+        $previous = [
+            'firstname' => $user->firstname,
+            'lastname' => $user->lastname,
+            'email' => $user->email,
+            'gender' => $user->gender,
+            'phone' => $user->phone,
+            'role' => $user->getRoleNames()->first() ?? '',
+            'permissions' => $user->getPermissionNames()->all(),
+        ];
+
         DB::beginTransaction();
 
         try {
@@ -191,6 +254,24 @@ class ShopStaffController extends Controller
 
             $user->syncRoles($validated['role']);
             $user->syncPermissions($validated['permissions']);
+
+            ShopActivity::for($shop->id, 'staff')
+                ->performedOn($user)
+                ->causedBy(Auth::user())
+                ->event('updated')
+                ->withChanges([
+                    'attributes' => [
+                        'firstname' => $validated['firstname'],
+                        'lastname' => $validated['lastname'],
+                        'email' => $validated['email'],
+                        'gender' => $validated['gender'],
+                        'phone' => $validated['phone'],
+                        'role' => $validated['role'],
+                        'permissions' => $validated['permissions'],
+                    ],
+                    'old' => $previous,
+                ])
+                ->log("Staff member {$validated['firstname']} {$validated['lastname']} updated");
 
             // Shop assignments are managed per shop, so other shops stay untouched.
             DB::commit();
@@ -223,18 +304,30 @@ class ShopStaffController extends Controller
             'password' => ['nullable', 'confirmed', Password::defaults()],
         ]);
 
+        $previousUsername = $user->username;
+        $passwordChanged = filled($validated['password'] ?? null);
 
         DB::beginTransaction();
 
         try {
             $user->username = $validated['username'];
 
-            
-            if (filled($validated['password'] ?? null)) {
+            if ($passwordChanged) {
                 $user->password = $validated['password'];
             }
 
             $user->save();
+
+            ShopActivity::for($shop->id, 'staff')
+                ->performedOn($user)
+                ->causedBy(Auth::user())
+                ->event('updated')
+                ->withChanges([
+                    'attributes' => ['username' => $validated['username']],
+                    'old' => ['username' => $previousUsername],
+                ])
+                ->withProperties(['password_changed' => $passwordChanged])
+                ->log("Credentials updated for {$user->firstname} {$user->lastname}");
 
             DB::commit();
             Inertia::flash('toast', ['type' => 'success', 'message' => __('Staff credentials updated successfully.')]);
@@ -252,27 +345,46 @@ class ShopStaffController extends Controller
     /**
      * Activate a staff member of this shop.
      */
-    public function activateStaff(Shop $shop, User $user)
+    public function activateStaff(Shop $shop, User $user): RedirectResponse
     {
+        $previousStatus = $user->status;
         $user->update(['status' => 'active']);
+
+        ShopActivity::for($shop->id, 'staff')
+            ->performedOn($user)
+            ->causedBy(Auth::user())
+            ->event('updated')
+            ->withChanges([
+                'attributes' => ['status' => 'active'],
+                'old' => ['status' => $previousStatus],
+            ])
+            ->log("Staff member {$user->firstname} {$user->lastname} activated");
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Staff activated successfully.')]);
 
         return back();
     }
-   
 
-   
-
-    public function suspendStaff(Shop $shop, User $user)
+    public function suspendStaff(Shop $shop, User $user): RedirectResponse
     {
-
+        $previousStatus = $user->status;
         $user->update(['status' => 'suspended']);
+
+        ShopActivity::for($shop->id, 'staff')
+            ->performedOn($user)
+            ->causedBy(Auth::user())
+            ->event('updated')
+            ->withChanges([
+                'attributes' => ['status' => 'suspended'],
+                'old' => ['status' => $previousStatus],
+            ])
+            ->log("Staff member {$user->firstname} {$user->lastname} suspended");
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Staff suspended successfully.')]);
 
         return back();
     }
+
     /**
      * Base query for users attached to the shop, excluding administrators.
      *
@@ -284,11 +396,6 @@ class ShopStaffController extends Controller
             ->whereHas('shops', fn (Builder $query) => $query->where('shops.id', $shop->id))
             ->whereDoesntHave('roles', fn (Builder $query) => $query->where('name', 'admin'));
     }
-
-   
-   
-
-    
 
     /**
      * Roles a shop page is allowed to assign.

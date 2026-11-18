@@ -11,6 +11,7 @@ use App\Models\Inventory\StockMovement;
 use App\Models\Sales\Sale;
 use App\Models\Sales\SaleItem;
 use App\Services\PosService;
+use App\Support\Activity\ShopActivity;
 use App\Support\ReceiptBuilder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -128,6 +129,13 @@ class PosController extends Controller
                 if (! $batch || $batch->units_remaining < $item['quantity']) {
                     DB::rollBack();
 
+                    ShopActivity::rejectedSale($shop->id, "Sale rejected: insufficient stock for batch {$batch?->batch_number}", [
+                        'reason' => 'insufficient_stock',
+                        'batch_number' => $batch?->batch_number,
+                        'requested_quantity' => $item['quantity'],
+                        'available_units' => $batch?->units_remaining,
+                    ]);
+
                     return back()->withErrors([
                         'stock' => "Insufficient stock for batch {$batch?->batch_number}. "
                             ."Available: {$batch?->units_remaining}, Requested: {$item['quantity']}.",
@@ -143,6 +151,12 @@ class PosController extends Controller
             // CHANGED: never trust final_total blindly — it can only be a discount, never higher
             if ((float) $validated['final_total'] > (float) $computedTotal) {
                 DB::rollBack();
+
+                ShopActivity::rejectedSale($shop->id, 'Sale rejected: submitted total exceeded the computed total', [
+                    'reason' => 'invalid_total',
+                    'submitted_total' => (float) $validated['final_total'],
+                    'computed_total' => (float) $computedTotal,
+                ]);
 
                 return back()->withErrors([
                     'final_total' => 'The total cannot be higher than the sum of the items.',
@@ -207,6 +221,20 @@ class PosController extends Controller
                 ]);
             }
 
+            // 4d. Record the completed sale in the shop activity log.
+            ShopActivity::for($shop->id, 'sales')
+                ->performedOn($sale)
+                ->causedBy(Auth::user())
+                ->event('sale.completed')
+                ->withProperties([
+                    'receipt_number' => $sale->receipt_number,
+                    'total_amount' => $totalAmount,
+                    'computed_total' => (float) $computedTotal,
+                    'discount' => round((float) $computedTotal - $totalAmount, 2),
+                    'items_count' => count($items),
+                    'units_sold' => collect($items)->sum('quantity'),
+                ])
+                ->log("Sale {$sale->receipt_number} completed");
 
             DB::commit();
 
