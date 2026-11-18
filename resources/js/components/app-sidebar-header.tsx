@@ -14,33 +14,53 @@ export function AppSidebarHeader({
     }>().props;
 
     return (
-        <header className="flex h-16 shrink-0 items-center border-b border-sidebar-border bg-background px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-            <div className="flex w-full items-center justify-between gap-4">
-                {/* Left side: Navigation controls and context tracking */}
-                <div className="flex min-w-0 items-center gap-2">
-                    <SidebarTrigger className="-ml-1 h-8 w-8 text-muted-foreground hover:text-foreground" />
-                    <div className="mx-1 hidden h-4 w-[1px] bg-sidebar-border sm:block" />
-                    <div className="truncate">
+        // <header className="flex h-16 shrink-0 items-center gap-2 border-b border-sidebar-border/50 px-6 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 md:px-4">
+        //     <div className="flex w-full items-center justify-between">
+        //         <div className="tborder flex items-center gap-2">
+        //             <SidebarTrigger className="-ml-1" />
+        //             <Breadcrumbs breadcrumbs={breadcrumbs} />
+        //         </div>
+
+        //         <div>{active_shop.name}</div>
+        //     </div>
+        // </header>
+
+        // <header className="flex h-16 shrink-0 items-center gap-2 border-b border-sidebar-border/50 px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 sm:px-6 md:px-4">
+        //     {/* CHANGED: min-w-0 so the left group can truncate instead of pushing the shop name off-screen */}
+        //     <div className="flex w-full min-w-0 items-center justify-between gap-2">
+        //         {/* CHANGED: min-w-0 + flex-1 so breadcrumbs take available space and truncate */}
+        //         <div className="flex min-w-0 flex-1 items-center gap-2">
+        //             <SidebarTrigger className="-ml-1 shrink-0" />
+        //             <div className="min-w-0 flex-1">
+        //                 <Breadcrumbs breadcrumbs={breadcrumbs} />
+        //             </div>
+        //         </div>
+
+        //         {/* CHANGED: shop name — truncate on small screens, full on md+, with store icon */}
+        //         <div className="flex max-w-[40%] min-w-0 items-center gap-1.5 text-sm font-medium text-foreground sm:max-w-[45%]">
+        //             <Store className="hidden h-4 w-4 shrink-0 text-muted-foreground sm:block" />
+        //             <span className="truncate">{active_shop.name}</span>
+        //         </div>
+        //     </div>
+        // </header>
+        <header className="flex min-h-16 shrink-0 items-center gap-2 border-b border-sidebar-border/50 px-4 py-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:min-h-12 sm:px-6 md:px-4">
+            {/* CHANGED: flex-wrap so shop name can drop to its own line on mobile */}
+            <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-x-2 gap-y-1">
+                {/* CHANGED: breadcrumbs row — take full width on mobile so shop name wraps below */}
+                <div className="flex min-w-0 flex-1 items-center gap-2">
+                    <SidebarTrigger className="-ml-1 shrink-0" />
+                    <div className="min-w-0">
                         <Breadcrumbs breadcrumbs={breadcrumbs} />
                     </div>
                 </div>
 
-                {/* Right side: Clean, professional active branch context badge */}
-                {active_shop && (
-                    <div className="flex shrink-0 items-center">
-                        <div className="inline-flex items-center gap-2 rounded-lg border border-sidebar-border bg-sidebar/50 px-2.5 py-1 text-xs font-medium text-sidebar-foreground shadow-sm sm:text-sm">
-                            {/* Subtle live indicator dot */}
-                            <span className="relative flex h-1.5 w-1.5">
-                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/60 opacity-75"></span>
-                                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary"></span>
-                            </span>
-                            <Store className="h-3.5 w-3.5 text-muted-foreground" />
-                            <span className="max-w-[140px] sm:max-w-[200px]">
-                                {active_shop.name}
-                            </span>
-                        </div>
-                    </div>
-                )}
+                {/* CHANGED: shop name — right-aligned on all sizes (justify-end); wraps below on mobile */}
+                <div className="flex w-full items-center justify-end gap-1.5 text-sm font-medium text-foreground sm:w-auto">
+                    <Store className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    <span className="text-right break-words">
+                        {active_shop.name}
+                    </span>
+                </div>
             </div>
         </header>
     );
