@@ -1,4 +1,4 @@
-import { Head, Link, router, usePage } from "@inertiajs/react";
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
     ArrowRight,
     LocateIcon,
@@ -6,30 +6,30 @@ import {
     MapPin,
     Phone,
     Store,
-} from "lucide-react";
+} from 'lucide-react';
 
-import Heading from "@/components/heading";
-import SearchInput from "@/components/search-input";
-import { logout } from "@/routes";
-import type { Auth } from "@/types";
-import staff from "@/routes/staff";
-import RefreshButton from "@/components/refresh-button";
+import Heading from '@/components/heading';
+import SearchInput from '@/components/search-input';
+import { logout } from '@/routes';
+import type { Auth } from '@/types';
+import staff from '@/routes/staff';
+import RefreshButton from '@/components/refresh-button';
 import {
     Empty,
     EmptyDescription,
     EmptyHeader,
     EmptyMedia,
     EmptyTitle,
-} from "@/components/ui/empty";
-import ThisShop from "@/routes/shop";
+} from '@/components/ui/empty';
+import ThisShop from '@/routes/shop';
 import {
     Card,
     CardContent,
     CardFooter,
     CardHeader,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { useCartStore } from "@/hooks/stores/user-cart-store";
+} from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { useCartStore } from '@/hooks/stores/user-cart-store';
 
 interface Shop {
     uuid: string;
@@ -125,7 +125,7 @@ export default function SelectShop({ shops, filters }: SelectShopProps) {
                                 </div>
 
                                 <Heading
-                                    title={`Welcome, ${auth?.user?.first_name || auth?.user?.firstname || ""} ${auth?.user?.last_name || auth?.user?.lastname || ""}`.trim()}
+                                    title={`Welcome, ${auth?.user?.first_name || auth?.user?.firstname || ''} ${auth?.user?.last_name || auth?.user?.lastname || ''}`.trim()}
                                     description="Select the pharmacy branch you want to work in."
                                 />
                             </div>
@@ -217,5 +217,5 @@ export default function SelectShop({ shops, filters }: SelectShopProps) {
 }
 
 SelectShop.layout = {
-    breadcrumbs: [{ title: "Select Shop", href: "#" }],
+    breadcrumbs: [{ title: 'Select Shop', href: '#' }],
 };

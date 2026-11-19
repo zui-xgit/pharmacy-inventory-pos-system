@@ -1,14 +1,14 @@
-import type { InertiaLinkProps } from "@inertiajs/react";
-import { clsx } from "clsx";
-import type { ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
+import type { InertiaLinkProps } from '@inertiajs/react';
+import { clsx } from 'clsx';
+import type { ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
 }
 
-export function toUrl(url: NonNullable<InertiaLinkProps["href"]>): string {
-    return typeof url === "string" ? url : url.url;
+export function toUrl(url: NonNullable<InertiaLinkProps['href']>): string {
+    return typeof url === 'string' ? url : url.url;
 }
 
 /**
@@ -19,18 +19,18 @@ export function formatDate(
     date: string | number | Date | null | undefined,
     options?: Intl.DateTimeFormatOptions,
 ): string {
-    if (!date) return "N/A";
+    if (!date) return 'N/A';
 
     const d = new Date(date);
-    if (isNaN(d.getTime())) return "Invalid Date";
+    if (isNaN(d.getTime())) return 'Invalid Date';
 
     const defaultOptions: Intl.DateTimeFormatOptions = {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
     };
 
-    return new Intl.DateTimeFormat("en-US", options ?? defaultOptions).format(
+    return new Intl.DateTimeFormat('en-US', options ?? defaultOptions).format(
         d,
     );
 }
@@ -43,11 +43,11 @@ export function formatDateTime(
     date: string | number | Date | null | undefined,
 ): string {
     return formatDate(date, {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
     });
 }
 
@@ -58,15 +58,15 @@ export function formatDateTime(
 export function formatForBackend(
     date: string | number | Date | null | undefined,
 ): string {
-    if (!date) return "";
+    if (!date) return '';
     const d = new Date(date);
-    if (isNaN(d.getTime())) return "";
+    if (isNaN(d.getTime())) return '';
 
     // Use Sweden locale ('sv-SE') because it natively outputs ISO 8601 (YYYY-MM-DD)
-    return new Intl.DateTimeFormat("sv-SE", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
+    return new Intl.DateTimeFormat('sv-SE', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
     }).format(d);
 }
 
@@ -83,9 +83,9 @@ export function isExpired(date: string | Date): boolean {
 }
 
 export const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "TZS",
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'TZS',
         minimumFractionDigits: 0,
     }).format(amount);
 };

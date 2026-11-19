@@ -1,20 +1,20 @@
-import { Form, Head, usePage } from "@inertiajs/react";
-import ProfileController from "@/actions/App/Http/Controllers/Settings/ProfileController";
+import { Form, Head, usePage } from '@inertiajs/react';
+import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 // import DeleteUser from '@/components/delete-user';
-import Heading from "@/components/heading";
-import InputError from "@/components/input-error";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import Heading from '@/components/heading';
+import InputError from '@/components/input-error';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select";
-import type { Auth } from "@/types";
-import { useCan } from "@/hooks/use-can";
+} from '@/components/ui/select';
+import type { Auth } from '@/types';
+import { useCan } from '@/hooks/use-can';
 
 type PageProps = {
     auth: Auth;
@@ -56,7 +56,7 @@ export default function Profile() {
                                     name="firstname"
                                     autoComplete="given-name"
                                     placeholder="First name"
-                                    disabled={processing || hasRole("cashier")}
+                                    disabled={processing || hasRole('cashier')}
                                 />
                                 <InputError
                                     className="mt-2"
@@ -73,7 +73,7 @@ export default function Profile() {
                                     name="lastname"
                                     autoComplete="family-name"
                                     placeholder="Last name"
-                                    disabled={processing || hasRole("cashier")}
+                                    disabled={processing || hasRole('cashier')}
                                 />
                                 <InputError
                                     className="mt-2"
@@ -86,7 +86,7 @@ export default function Profile() {
                                 <Select
                                     name="gender"
                                     defaultValue={auth.user.gender as string}
-                                    disabled={processing || hasRole("cashier")}
+                                    disabled={processing || hasRole('cashier')}
                                 >
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select gender" />
@@ -115,7 +115,7 @@ export default function Profile() {
                                     name="phone"
                                     autoComplete="tel"
                                     placeholder="0754 000 000"
-                                    disabled={processing || hasRole("cashier")}
+                                    disabled={processing || hasRole('cashier')}
                                 />
                                 <InputError
                                     className="mt-2"
@@ -135,7 +135,7 @@ export default function Profile() {
                                     name="email"
                                     autoComplete="username"
                                     placeholder="xxx@xxx.com"
-                                    disabled={processing || hasRole("cashier")}
+                                    disabled={processing || hasRole('cashier')}
                                 />
                                 <InputError
                                     className="mt-2"
@@ -143,7 +143,7 @@ export default function Profile() {
                                 />
                             </div>
 
-                            {hasAnyRole(["admin", "manager"]) && (
+                            {hasAnyRole(['admin', 'manager']) && (
                                 <div className="flex items-center gap-4">
                                     <Button
                                         disabled={processing}
@@ -166,8 +166,8 @@ export default function Profile() {
 Profile.layout = {
     breadcrumbs: [
         {
-            title: "Profile settings",
-            href: "#",
+            title: 'Profile settings',
+            href: '#',
         },
     ],
 };
