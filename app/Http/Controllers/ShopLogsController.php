@@ -197,8 +197,7 @@ class ShopLogsController extends Controller
                 'label' => trim(($subject->firstname ?? '').' '.($subject->lastname ?? '')),
                 // 'url' => route('shop.staff-edit', ['shop' => $shop->uuid]),
 
-
-                'url' => route('shop.staff-details', ['shop' => $shop->uuid, 'user' => $subject->uuid]) 
+                'url' => route('shop.staff-details', ['shop' => $shop->uuid, 'user' => $subject->uuid]),
             ],
             $subject instanceof Shop => [
                 'type' => 'Shop',

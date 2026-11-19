@@ -2,8 +2,8 @@
 
 namespace App\Support\Activity;
 
-use Spatie\Activitylog\Support\ActivityLogger;
 use Spatie\Activitylog\Contracts\Activity as ActivityContract;
+use Spatie\Activitylog\Support\ActivityLogger;
 
 class AdminActivity
 {
@@ -13,14 +13,12 @@ class AdminActivity
      *
      * @param  string  $logName  One of: staff, shop, system, etc.
      */
-   
-
     public static function log(string $logName = 'system'): ActivityLogger
     {
 
-        return activity($logName)->tap(function (ActivityContract $activity) {  
+        return activity($logName)->tap(function (ActivityContract $activity) {
             $activity->shop_id = null; // Explicitly null for global admin logs
-        });     
+        });
 
     }
 }
