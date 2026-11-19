@@ -25,7 +25,6 @@ trait ProfileValidationRules
         ];
     }
 
-
     /**
      * Get the validation rules used to validate usernames.
      *

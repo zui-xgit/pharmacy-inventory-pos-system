@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class ProductFactory extends Factory
 {
+    /** @var array<int, string>|null */
     protected static ?array $shuffledProducts = null;
 
     protected static int $index = 0;

@@ -11,13 +11,13 @@ Route::prefix('shops')->middleware(['auth', 'verified', 'check.status',  'role:a
     Route::get('staff-management', [AdminController::class, 'staffManagement'])->name('admin.staff');
 
     Route::get('staff-management/{user:uuid}/staff-details', [AdminController::class, 'staffDetails'])
-           ->name('admin.staff-details')
-           ->middleware('can:view,user');
+        ->name('admin.staff-details')
+        ->middleware('can:view,user');
 
     Route::patch('staff-management/{user:uuid}/update-staff', [AdminController::class, 'updateStaff'])
-           ->name('admin.staff-update');
+        ->name('admin.staff-update');
     Route::patch('staff-management/{user:uuid}/update-credentials', [AdminController::class, 'updateCredentials'])
-           ->name('admin.staff-update-credentials');
+        ->name('admin.staff-update-credentials');
 
     Route::get('activiy-logs', [AdminController::class, 'activityLogs'])->name('admin.activity-logs');
 

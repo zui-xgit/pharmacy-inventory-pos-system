@@ -1,5 +1,5 @@
 import { useForm } from '@inertiajs/react';
-import { Store, UserPlus } from 'lucide-react';
+import { UserPlus } from 'lucide-react';
 import type { ChangeEvent, FormEvent, ReactNode } from 'react';
 import { useState } from 'react';
 import { toast } from 'sonner';

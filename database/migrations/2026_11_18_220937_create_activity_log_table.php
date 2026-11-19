@@ -19,7 +19,6 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnDelete();
 
-                
             $table->string('log_name')->nullable()->index();
             $table->text('description');
             $table->nullableMorphs('subject', 'subject');
@@ -31,8 +30,7 @@ return new class extends Migration
         });
     }
 
-
-      /**
+    /**
      * Reverse the migrations.
      */
     public function down(): void

@@ -5,7 +5,6 @@ import {
     Boxes,
     CalendarDays,
     Clock,
-    ExternalLink,
     FlaskConical,
     History,
     Inbox,
@@ -26,13 +25,6 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
 import {
     Select,
     SelectContent,

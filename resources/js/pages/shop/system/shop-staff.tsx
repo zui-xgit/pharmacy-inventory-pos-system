@@ -5,7 +5,6 @@ import {
     Key,
     MoreHorizontal,
     Plus,
-    Store,
     UserCheck,
     UserMinus,
     Users,
@@ -412,7 +411,7 @@ export default function ShopStaff({
                                         <TableRow
                                             key={member.uuid}
                                             className="cursor-pointer"
-                                            onClick={(e) => {
+                                            onClick={() => {
                                                 if (
                                                     member.uuid !==
                                                     auth.user.uuid
@@ -630,7 +629,6 @@ export default function ShopStaff({
                                                                                         ' ' +
                                                                                         member.lastname}
                                                                                 </span>
-
                                                                                 ?
                                                                                 Their
                                                                                 access

@@ -157,8 +157,8 @@ class StockController extends Controller
 
             $previousStock = $batch->units_remaining;
             $previousPackages = $batch->packages_remaining;
-            $previousManufacturedDate = $batch->manufactured_date?->toDateString();
-            $previousExpiryDate = $batch->expiry_date?->toDateString();
+            $previousManufacturedDate = $batch->manufactured_date->toDateString();
+            $previousExpiryDate = $batch->expiry_date->toDateString();
             $newStock = (int) $validated['units_remaining'];
             $difference = $newStock - $previousStock;
 

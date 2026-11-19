@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Settings;
 
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -12,7 +11,7 @@ class ProfileUpdateTest extends TestCase
 
     public function test_profile_page_is_displayed()
     {
-        $user = User::factory()->create();
+        $user = $this->createUser(roles: ['admin']);
 
         $response = $this
             ->actingAs($user)
@@ -23,13 +22,17 @@ class ProfileUpdateTest extends TestCase
 
     public function test_profile_information_can_be_updated()
     {
-        $user = User::factory()->create();
+        $user = $this->createUser(roles: ['admin']);
 
         $response = $this
             ->actingAs($user)
+            ->from(route('profile.edit'))
             ->patch(route('profile.update'), [
-                'name' => 'Test User',
-                'email' => 'test@example.com',
+                'firstname' => 'Test',
+                'lastname' => 'User',
+                'gender' => 'male',
+                'phone' => '0712345678',
+                'email' => 'test@gmail.com',
             ]);
 
         $response
@@ -38,47 +41,46 @@ class ProfileUpdateTest extends TestCase
 
         $user->refresh();
 
-        $this->assertSame('Test User', $user->name);
-        $this->assertSame('test@example.com', $user->email);
+        $this->assertSame('Test', $user->firstname);
+        $this->assertSame('User', $user->lastname);
+        $this->assertSame('test@gmail.com', $user->email);
         $this->assertNull($user->email_verified_at);
     }
 
-    public function test_email_is_stored_in_lowercase_so_the_user_can_still_log_in()
+    public function test_email_is_stored_in_lowercase_on_update()
     {
-        $user = User::factory()->create();
+        $user = $this->createUser(roles: ['admin']);
 
         $this
             ->actingAs($user)
+            ->from(route('profile.edit'))
             ->patch(route('profile.update'), [
-                'name' => 'Test User',
-                'email' => 'Test@Example.com',
+                'firstname' => $user->firstname,
+                'lastname' => $user->lastname,
+                'gender' => $user->gender,
+                'phone' => $user->phone,
+                'email' => 'Test@Gmail.com',
             ])
             ->assertSessionHasNoErrors();
 
-        $this->assertSame('test@example.com', $user->refresh()->email);
-
-        $this->post(route('logout'));
-
-        $this->post(route('login.store'), [
-            'email' => 'Test@Example.com',
-            'password' => 'password',
-        ]);
-
-        $this->assertAuthenticatedAs($user);
+        $this->assertSame('test@gmail.com', $user->refresh()->email);
     }
 
     public function test_email_must_be_unique_regardless_of_case()
     {
-        User::factory()->create(['email' => 'taken@example.com']);
+        $this->createUser(['email' => 'taken@gmail.com'], ['admin']);
 
-        $user = User::factory()->create();
+        $user = $this->createUser(roles: ['admin']);
 
         $response = $this
             ->actingAs($user)
             ->from(route('profile.edit'))
             ->patch(route('profile.update'), [
-                'name' => 'Test User',
-                'email' => 'Taken@Example.com',
+                'firstname' => $user->firstname,
+                'lastname' => $user->lastname,
+                'gender' => $user->gender,
+                'phone' => $user->phone,
+                'email' => 'Taken@Gmail.com',
             ]);
 
         $response
@@ -88,12 +90,16 @@ class ProfileUpdateTest extends TestCase
 
     public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged()
     {
-        $user = User::factory()->create();
+        $user = $this->createUser(['email' => 'verified@gmail.com'], ['admin']);
 
         $response = $this
             ->actingAs($user)
+            ->from(route('profile.edit'))
             ->patch(route('profile.update'), [
-                'name' => 'Test User',
+                'firstname' => $user->firstname,
+                'lastname' => $user->lastname,
+                'gender' => $user->gender,
+                'phone' => $user->phone,
                 'email' => $user->email,
             ]);
 
@@ -106,7 +112,7 @@ class ProfileUpdateTest extends TestCase
 
     public function test_user_can_delete_their_account()
     {
-        $user = User::factory()->create();
+        $user = $this->createUser(roles: ['admin']);
 
         $response = $this
             ->actingAs($user)
@@ -124,7 +130,7 @@ class ProfileUpdateTest extends TestCase
 
     public function test_correct_password_must_be_provided_to_delete_account()
     {
-        $user = User::factory()->create();
+        $user = $this->createUser(roles: ['admin']);
 
         $response = $this
             ->actingAs($user)

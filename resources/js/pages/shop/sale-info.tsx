@@ -1,12 +1,5 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import {
-    ArrowLeft,
-    Boxes,
-    CalendarClock,
-    Printer,
-    Receipt,
-    Store,
-} from 'lucide-react';
+import { Boxes, CalendarClock, Printer, Receipt, Store } from 'lucide-react';
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

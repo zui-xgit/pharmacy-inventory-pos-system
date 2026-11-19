@@ -1,6 +1,5 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import {
-    Pill,
     ShieldCheck,
     LayoutDashboard,
     Database,

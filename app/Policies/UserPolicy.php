@@ -7,28 +7,16 @@ use Illuminate\Auth\Access\Response;
 
 class UserPolicy
 {
-
-
     /**
      * Determine if the actor can change the target user's status
      * (activate, deactivate, suspend).
-     *    
      */
-
-
-    public function updateUser(User $user, User $model): Response 
+    public function updateUser(User $user, User $model): Response
     {
         return $user->uuid !== $model->uuid
             ? Response::allow()
             : Response::deny('FORBIDDEN');
     }
-    
-    
-    
- 
-
-    
-
 
     /**
      * Determine whether the user can view any models.

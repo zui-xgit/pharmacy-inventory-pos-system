@@ -1,5 +1,4 @@
 import { Link } from '@inertiajs/react';
-import { Pill } from 'lucide-react';
 import { home } from '@/routes';
 import type { AuthLayoutProps } from '@/types';
 import AppLogoIcon from '@/components/app-logo-icon';

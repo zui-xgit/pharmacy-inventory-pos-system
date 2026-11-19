@@ -42,7 +42,6 @@ export function PosCartSheet({ trigger }: PosCartSheetProps) {
     const totalPrice = useCartStore((state) => state.getTotalPrice());
 
     const [loading, setLoading] = useState<boolean>(false);
-    const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
 
     const performCheckout = () => {
         if (!cart || cart.length === 0) {

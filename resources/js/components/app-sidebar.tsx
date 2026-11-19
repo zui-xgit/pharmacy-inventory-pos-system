@@ -1,7 +1,5 @@
-import { Link, router, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import {
-    BookOpen,
-    FolderGit2,
     Store,
     UsersRound,
     Package,
@@ -30,9 +28,7 @@ import {
 } from '@/components/ui/sidebar';
 import admin from '@/routes/admin';
 import type { NavItem } from '@/types';
-import type { Auth } from '@/types/auth';
 // import NavSubMain from './nav-sub-main';
-import { Button } from './ui/button';
 import staff from '@/routes/staff';
 import { edit } from '@/routes/profile';
 import shop from '@/routes/shop';
@@ -113,19 +109,6 @@ const ShopReportAndInsights = (shop_uuid: string): NavItem[] => [
     },
 ];
 
-const ShopSystem = (shop_uuid: string): NavItem[] => [
-    {
-        title: 'Staff',
-        // href: staff.edit({ shop: shop_uuid }),
-        href: shop.staffEdit({ shop: shop_uuid }),
-        icon: Users,
-    },
-    {
-        title: 'Settings',
-        href: shop.staffProfile({ shop: shop_uuid }),
-        icon: Package,
-    },
-];
 // const footerNavItems: NavItem[] = [
 //     {
 //         title: 'Repository',
@@ -140,9 +123,8 @@ const ShopSystem = (shop_uuid: string): NavItem[] => [
 // ];
 
 export function AppSidebar() {
-    const { active_shop, auth } = usePage<{
+    const { active_shop } = usePage<{
         active_shop: { uuid: string };
-        auth: Auth;
     }>().props;
 
     const { can, hasRole, hasAnyRole } = useCan();

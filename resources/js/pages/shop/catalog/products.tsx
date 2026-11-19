@@ -1,6 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
-import { EditDeleteRowActions } from '@/components/dopdown/edit-delete-row-actions';
 import Heading from '@/components/heading';
 import SearchInput from '@/components/search-input'; // Adjust this import path to match your structure
 import NewProductSheet from '@/components/sheets/new-product';
@@ -35,9 +34,6 @@ interface Props {
 }
 
 const Products = ({ products, filters, dosage_forms }: Props) => {
-    const handleEdit = () => {};
-    const handleDelete = () => {};
-
     const { active_shop } = usePage<{
         active_shop: { uuid: string };
     }>().props;

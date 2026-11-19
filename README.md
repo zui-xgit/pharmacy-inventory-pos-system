@@ -72,18 +72,18 @@ Pharmacy management demands strict compliance, precise stock tracking, and real-
 
 ## 🛠️ Tech Stack & Architecture
 
-| Category                  | Technology                          | Usage / Purpose                                                      |
-| ------------------------- | ----------------------------------- | -------------------------------------------------------------------- |
-| **Backend Framework**     | Laravel 13.x                        | Routing, authentication, business logic, Eloquent ORM, queues        |
-| **Frontend Framework**    | React 19.x + TypeScript             | Component-driven, typed UI rendering                                 |
-| **Glue Layer**            | Inertia.js v3 + Wayfinder           | SPA visits without a custom API, typed route helpers                 |
-| **Styling Framework**     | Tailwind CSS v4 + Radix UI          | Utility-first responsive design and accessible components            |
-| **Auth & Permissions**    | Laravel Fortify + Spatie Permission | Login/password reset, roles, permissions, shop-scoped access         |
-| **Audit Logging**         | Spatie Activity Log                 | Searchable activity history for admin and shop contexts              |
-| **Database**              | MySQL 8 (local), SQLite (tests)     | ACID-compliant relational storage, constraints, and indexes          |
-| **Runtime & Environment** | PHP 8.3+ / Laravel Herd             | Local development; developed on PHP 8.5                              |
-| **Build Tooling**         | Vite 8 + npm                        | HMR during development and production asset builds                   |
-| **Version Control**       | Git / GitHub                        | Feature branching and structured commit isolation                    |
+| Category                  | Technology                          | Usage / Purpose                                               |
+| ------------------------- | ----------------------------------- | ------------------------------------------------------------- |
+| **Backend Framework**     | Laravel 13.x                        | Routing, authentication, business logic, Eloquent ORM, queues |
+| **Frontend Framework**    | React 19.x + TypeScript             | Component-driven, typed UI rendering                          |
+| **Glue Layer**            | Inertia.js v3 + Wayfinder           | SPA visits without a custom API, typed route helpers          |
+| **Styling Framework**     | Tailwind CSS v4 + Radix UI          | Utility-first responsive design and accessible components     |
+| **Auth & Permissions**    | Laravel Fortify + Spatie Permission | Login/password reset, roles, permissions, shop-scoped access  |
+| **Audit Logging**         | Spatie Activity Log                 | Searchable activity history for admin and shop contexts       |
+| **Database**              | MySQL 8 (local), SQLite (tests)     | ACID-compliant relational storage, constraints, and indexes   |
+| **Runtime & Environment** | PHP 8.3+ / Laravel Herd             | Local development; developed on PHP 8.5                       |
+| **Build Tooling**         | Vite 8 + npm                        | HMR during development and production asset builds            |
+| **Version Control**       | Git / GitHub                        | Feature branching and structured commit isolation             |
 
 ## 📐 Technical & Engineering Highlights
 
@@ -163,18 +163,18 @@ Ensure you have the following installed on your machine:
 
     - **Laravel Herd (recommended on macOS/Windows):** the site is already served at `http://pharmacy-inventory-pos-system-with-ai-v1.test`. Start the asset watcher for hot reloading:
 
-      ```bash
-      npm run dev
-      ```
+        ```bash
+        npm run dev
+        ```
 
     - **Plain PHP server:**
 
-      ```bash
-      php artisan serve
+        ```bash
+        php artisan serve
 
-      # In a separate terminal, start Vite for hot module replacement (HMR)
-      npm run dev
-      ```
+        # In a separate terminal, start Vite for hot module replacement (HMR)
+        npm run dev
+        ```
 
 6. **Access the Application**
 

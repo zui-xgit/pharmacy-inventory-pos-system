@@ -1,8 +1,6 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { ArrowLeft, CalendarClock, Package } from 'lucide-react';
+import { CalendarClock } from 'lucide-react';
 import Heading from '@/components/heading';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
     Card,
     CardContent,

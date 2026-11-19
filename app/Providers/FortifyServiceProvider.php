@@ -5,17 +5,17 @@ namespace App\Providers;
 use App\Actions\Fortify\ResetUserPassword;
 use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
-use Laravel\Fortify\Features;
-use Laravel\Fortify\Fortify;
 use Laravel\Fortify\Contracts\LoginResponse;
 use Laravel\Fortify\Contracts\LogoutResponse;
-use Illuminate\Http\RedirectResponse;
+use Laravel\Fortify\Features;
+use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -57,10 +57,10 @@ class FortifyServiceProvider extends ServiceProvider
                     if ($shops->count() === 1) {
                         return redirect()->route('shop.overview', ['shop' => $shops->first()->uuid]);
                     }
-        
+
                     // 0 shops
                     // 2+ shops: the page lets them pick one
-                   return redirect()->route('staff.shops-select');
+                    return redirect()->route('staff.shops-select');
                 }
 
                 return redirect('/');

@@ -1,7 +1,6 @@
 import { Link, router, usePage } from '@inertiajs/react';
-import { Link2, LogOut, Settings, Store } from 'lucide-react';
+import { Link2, LogOut, Store } from 'lucide-react';
 import {
-    DropdownMenuGroup,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
@@ -9,7 +8,6 @@ import {
 import { UserInfo } from '@/components/user-info';
 import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
 import { logout } from '@/routes';
-import profile from '@/routes/profile';
 import type { Auth, User } from '@/types';
 import staff from '@/routes/staff';
 import admin from '@/routes/admin';

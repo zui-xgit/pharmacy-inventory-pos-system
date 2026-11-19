@@ -1,5 +1,5 @@
-import { Head, Link, router, usePage } from '@inertiajs/react';
-import { ArrowLeft, Boxes, Package } from 'lucide-react';
+import { Link, router, usePage } from '@inertiajs/react';
+import { Boxes, Package } from 'lucide-react';
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

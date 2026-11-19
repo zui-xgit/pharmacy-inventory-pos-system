@@ -195,7 +195,7 @@ class AdminController extends Controller
             'lowStockAlerts' => $lowStockAlerts,
             'expiringSoonAlerts' => $expiringSoonAlerts,
             'totalAlerts' => $lowStockAlerts + $expiringSoonAlerts,
-            'currencySymbol' => $allShops->first()?->currency_symbol ?? 'TSh',
+            'currencySymbol' => $allShops->first()->currency_symbol ?? 'TSh',
         ];
 
         // 8. Return the Inertia view with all the payload data
@@ -358,8 +358,6 @@ class AdminController extends Controller
 
             $user->shops()->sync($shopIds);
 
-          
-
             AdminActivity::log('staff')
                 ->performedOn($user)
                 ->causedBy(Auth::user())
@@ -420,8 +418,6 @@ class AdminController extends Controller
             }
 
             $user->save();
-
-            
 
             AdminActivity::log('staff')
                 ->performedOn($user)
@@ -497,8 +493,6 @@ class AdminController extends Controller
 
             $user->shops()->sync($shopIds);
 
-         
-
             AdminActivity::log('staff')
                 ->performedOn($user)
                 ->causedBy(Auth::user())
@@ -529,7 +523,6 @@ class AdminController extends Controller
         $previousStatus = $user->status;
         $user->update(['status' => 'active']);
 
-     
         AdminActivity::log('staff')
             ->performedOn($user)
             ->causedBy(Auth::user())
@@ -550,8 +543,6 @@ class AdminController extends Controller
         $previousStatus = $user->status;
         $user->update(['status' => 'suspended']);
 
-        
-
         AdminActivity::log('staff')
             ->performedOn($user)
             ->causedBy(Auth::user())
@@ -561,8 +552,6 @@ class AdminController extends Controller
                 'old' => ['status' => $previousStatus],
             ])
             ->log("Staff member {$user->firstname} {$user->lastname} suspended");
-
-
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Staff suspended successfully.')]);
 
@@ -759,7 +748,7 @@ class AdminController extends Controller
                 'type' => 'Batch',
                 'label' => trim(
                     'Batch '.$subject->batch_number.
-                    ($subject->relationLoaded('product') && $subject->product
+                    ($subject->relationLoaded('product')
                         ? ' · '.$subject->product->name
                         : ''),
                 ),
@@ -768,7 +757,7 @@ class AdminController extends Controller
                     'batch' => $subject->uuid,
                 ]) : null,
             ],
-            $subject instanceof Sale => [   
+            $subject instanceof Sale => [
                 'type' => 'Sale',
                 'label' => $subject->receipt_number,
                 'url' => $shop ? route('shop.sale-info', [
@@ -779,7 +768,7 @@ class AdminController extends Controller
             $subject instanceof User => [
                 'type' => 'Staff member',
                 'label' => trim(($subject->firstname ?? '').' '.($subject->lastname ?? '')) ?: ($subject->username ?? ''),
-                'url' => route('admin.staff-details', ['user' => $subject->uuid ])
+                'url' => route('admin.staff-details', ['user' => $subject->uuid]),
             ],
             $subject instanceof Shop => [
                 'type' => 'Shop',

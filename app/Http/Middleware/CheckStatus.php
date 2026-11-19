@@ -17,8 +17,8 @@ class CheckStatus
     public function handle(Request $request, Closure $next): Response
     {
 
-        $user = $request->user(); 
-        
+        $user = $request->user();
+
         if ($user && in_array($user->status, ['inactive', 'suspended'])) {
             $route = $user->status === 'suspended'
                 ? 'account.suspended'
@@ -30,6 +30,7 @@ class CheckStatus
 
             return redirect()->route($route)->with('account_status', true);
         }
+
         return $next($request);
     }
 }

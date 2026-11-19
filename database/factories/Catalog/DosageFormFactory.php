@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class DosageFormFactory extends Factory
 {
+    /** @var array<int, string>|null */
     protected static ?array $shuffledForms = null;
 
     protected static int $index = 0;

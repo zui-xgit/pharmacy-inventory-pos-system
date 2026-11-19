@@ -4,7 +4,6 @@ import {
     Calendar,
     DollarSign,
     Plus,
-    PlusCircle,
     Receipt,
     ShoppingBag,
     TrendingUp,

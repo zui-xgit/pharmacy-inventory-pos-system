@@ -39,24 +39,24 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
-            'auth' =>   [
-                        'user' => $request->user() ? [
-                        'uuid' => $request->user()->uuid, 
-                        'firstname' => $request->user()->firstname,
-                        'lastname' => $request->user()->lastname,
-                        'email' => $request->user()->email,
-                        'gender' => $request->user()->gender,
-                        'phone' => $request->user()->phone,
-                        'roles' => $request->user()->getRoleNames()->values(),
-                        'permissions' => $request->user()->getAllPermissions()->pluck('name')->values(),  
+            'auth' => [
+                'user' => $request->user() ? [
+                    'uuid' => $request->user()->uuid,
+                    'firstname' => $request->user()->firstname,
+                    'lastname' => $request->user()->lastname,
+                    'email' => $request->user()->email,
+                    'gender' => $request->user()->gender,
+                    'phone' => $request->user()->phone,
+                    'roles' => $request->user()->getRoleNames()->values(),
+                    'permissions' => $request->user()->getAllPermissions()->pluck('name')->values(),
 
-                        'shops_count' => fn () => $request->user()->isAdmin()
-                                                ? Shop::count()
-                                                : 0, 
-                        'user_shops_count' => fn () => $request->user()->isManagerOrCashier()
-                                            ? $request->user()->shops()->count()
+                    'shops_count' => fn () => $request->user()->isAdmin()
+                                            ? Shop::count()
                                             : 0,
-                    ] : null,
+                    'user_shops_count' => fn () => $request->user()->isManagerOrCashier()
+                                        ? $request->user()->shops()->count()
+                                        : 0,
+                ] : null,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

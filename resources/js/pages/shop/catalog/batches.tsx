@@ -1,6 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
-import { EditDeleteRowActions } from '@/components/dopdown/edit-delete-row-actions';
 import Heading from '@/components/heading';
 import SearchInput from '@/components/search-input';
 

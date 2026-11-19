@@ -7,7 +7,6 @@ import {
     MapPin,
     MoreHorizontal,
     Plus,
-    ShieldCheck,
     Store,
     UserCheck,
     UserMinus,
@@ -57,12 +56,6 @@ import { staffRoleStyles, staffStatusStyles } from '@/lib/staff';
 import type { StaffMember, StaffShop } from '@/lib/staff';
 import { cn } from '@/lib/utils';
 import admin from '@/routes/admin';
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover';
-
 import { Auth } from '@/types';
 import ShopFilter from '@/components/user-filter-by-shop';
 
@@ -711,7 +704,6 @@ export default function StaffManagement({
                                                                                         ' ' +
                                                                                         member.lastname}
                                                                                 </span>
-
                                                                                 ?
                                                                                 Their
                                                                                 access

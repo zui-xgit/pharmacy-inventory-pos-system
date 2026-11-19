@@ -1,4 +1,4 @@
-import { Head, usePage } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { AlertTriangle, Store, TrendingUp, Users } from 'lucide-react';
 
 import ShopSummaryCard from '@/components/dashboard/shop-summary-card';
@@ -10,7 +10,6 @@ import SearchInput from '@/components/search-input';
 
 import DashboardInnerLayout from '@/layouts/app/dashboard-inner-layout';
 import admin from '@/routes/admin';
-import { Auth } from '@/types';
 
 interface ShopStats {
     total_sales_today: number;

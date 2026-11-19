@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Settings;
 
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -22,7 +21,7 @@ class SecurityTest extends TestCase
             'confirmPassword' => true,
         ]);
 
-        $user = User::factory()->create();
+        $user = $this->createUser(roles: ['admin']);
 
         $this->actingAs($user)
             ->get(route('security.edit'))
@@ -39,7 +38,7 @@ class SecurityTest extends TestCase
 
         config(['fortify.features' => []]);
 
-        $user = User::factory()->create();
+        $user = $this->createUser(roles: ['admin']);
 
         $this->actingAs($user)
             ->get(route('security.edit'))
@@ -54,7 +53,7 @@ class SecurityTest extends TestCase
 
     public function test_password_can_be_updated()
     {
-        $user = User::factory()->create();
+        $user = $this->createUser(roles: ['admin']);
 
         $response = $this
             ->actingAs($user)
@@ -74,7 +73,7 @@ class SecurityTest extends TestCase
 
     public function test_correct_password_must_be_provided_to_update_password()
     {
-        $user = User::factory()->create();
+        $user = $this->createUser(roles: ['admin']);
 
         $response = $this
             ->actingAs($user)

@@ -19,7 +19,6 @@ import {
 import { useCartStore } from '@/hooks/stores/user-cart-store';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
-import { Button } from '../ui/button';
 import ThisShop from '@/routes/shop';
 
 interface ShopStats {

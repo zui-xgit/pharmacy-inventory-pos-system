@@ -5,15 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { cn, toUrl } from '@/lib/utils';
-import type { Auth, NavItem } from '@/types';
+import type { NavItem } from '@/types';
 import shop from '@/routes/shop';
 
 export default function StaffSettingsLayout({ children }: PropsWithChildren) {
     const { isCurrentOrParentUrl } = useCurrentUrl();
 
-    const { active_shop, auth } = usePage<{
+    const { active_shop } = usePage<{
         active_shop: { uuid: string } | undefined;
-        auth: Auth;
     }>().props;
 
     const sidebarNavItems: NavItem[] = [

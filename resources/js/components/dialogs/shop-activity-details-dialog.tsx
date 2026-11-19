@@ -2,19 +2,13 @@ import { Link } from '@inertiajs/react';
 
 import {
     Activity as ActivityIcon,
-    ArrowRight,
     Boxes,
-    CalendarDays,
-    Clock,
     ExternalLink,
     FlaskConical,
-    History,
-    Inbox,
     Package,
     Receipt,
     Store,
     UserRound,
-    Users,
 } from 'lucide-react';
 
 import {

@@ -7,11 +7,9 @@ import {
     AlertDialogDescription,
     AlertDialogFooter,
     AlertDialogHeader,
-    AlertDialogMedia,
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { AlertCircle } from 'lucide-react';
 
 interface ConfirmAlertDialogProps {
     trigger: React.ReactNode;

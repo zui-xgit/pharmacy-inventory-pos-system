@@ -2,7 +2,6 @@ import { Link, router, usePage } from '@inertiajs/react';
 import {
     ArrowLeft,
     ArrowRight,
-    Backpack,
     CalendarDays,
     Layers,
     Minus,
@@ -47,7 +46,6 @@ import type {
     CartItem,
     PosProduct,
 } from '@/hooks/stores/user-cart-store';
-import DashboardInnerLayout from '@/layouts/app/dashboard-inner-layout';
 import { formatCurrency, formatDate, isExpired } from '@/lib/utils';
 import shop from '@/routes/shop';
 import Heading from '@/components/heading';
